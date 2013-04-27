@@ -1,39 +1,125 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openengsb.testing</groupId>
-  <artifactId>openengsb-testing</artifactId>
-  <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>openengsb-testing</name>
-  <url>http://maven.apache.org</url>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <dependency>
-      <groupId>org.openengsb.framework</groupId>
-      <artifactId>openengsb-framework</artifactId>
-      <version>2.5.1</version>
-      <!--<packaging>zip</packaging>-->
-      <type>zip</type>
-    </dependency>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 
-	<dependency>
-		<groupId>org.apache.felix.karaf</groupId>
-		<artifactId>org.apache.felix.karaf.client</artifactId>
-		<version>1.6.0</version>
-	</dependency>
+	<groupId>org.openengsb.labs.testing</groupId>
+	<artifactId>labs-testing-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-<!-- 	<dependency>
-		<groupId>org.apache.sshd</groupId>
-		<artifactId>sshd-core</artifactId>
-		<version>0.8.0</version>
-	</dependency>
- -->
-  </dependencies>
+	<name>labs-testing</name>
+	<url>http://maven.apache.org</url>
+
+	<scm>
+		<connection>scm:git:git://github.com/openengsb-labs/labs-testing.git</connection>
+		<developerConnection>scm:git:git@github.com:openengsb-labs/labs-testing.git</developerConnection>
+		<url>http://github.com/openengsb-labs/labs-testing</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+		<maven-release-plugin.version>2.2.2</maven-release-plugin.version>
+		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
+		<maven-notice-plugin.version>1.0.4</maven-notice-plugin.version>
+		<junit.version>4.11</junit.version>
+	</properties>
+
+	<modules>
+		<module>core</module>
+	</modules>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>${maven-release-plugin.version}</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<useReleaseProfile>false</useReleaseProfile>
+					<pushChanges>false</pushChanges>
+					<arguments>-Psonatype-oss-release -DpushChanges=false
+						-Dgpg.useagent=true</arguments>
+					<preparationGoals>clean install -Dmaven.test.skip=true</preparationGoals>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>${maven-license-plugin.version}</version>
+				<configuration>
+					<header>https://raw.github.com/openengsb/openengsb-root/master/etc/license/header.txt</header>
+					<failIfMissing>true</failIfMissing>
+					<aggregate>true</aggregate>
+					<strictCheck>true</strictCheck>
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<excludes>
+						<exclude>atlassian-ide-plugin.xml</exclude>
+						<exclude>**/.idea/**</exclude>
+					</excludes>
+					<mapping>
+						<gitignore>SCRIPT_STYLE</gitignore>
+					</mapping>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jasig.maven</groupId>
+				<artifactId>maven-notice-plugin</artifactId>
+				<version>${maven-notice-plugin.version}</version>
+				<configuration>
+					<noticeTemplate>
+						https://raw.github.com/openengsb/openengsb-root/cf0d02085d29fbaa585d21cfe03cb686318d7771/etc/notice/NOTICE.template
+					</noticeTemplate>
+					<licenseMapping>
+						<param>
+							https://raw.github.com/openengsb/openengsb-root/cf0d02085d29fbaa585d21cfe03cb686318d7771/etc/notice/license-mapping.xml
+						</param>
+					</licenseMapping>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ops4j.pax.tinybundles</groupId>
+				<artifactId>tinybundles</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.felix.karaf</groupId>
+				<artifactId>org.apache.felix.karaf.client</artifactId>
+				<version>1.6.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
