@@ -12,10 +12,9 @@ import java.util.concurrent.TimeoutException;
 import org.openengsb.labs.testing.api.Shell;
 import org.openengsb.labs.testing.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.testing.karaf.output.OutputHandler;
-import org.openengsb.labs.testing.recognizer.Recognizer;
 
 public class KarafShell implements Shell {
-    private final Recognizer karafPromptRecognizer = new KarafPromptRecognizer("karaf", "root");
+    private final KarafPromptRecognizer karafPromptRecognizer = new KarafPromptRecognizer("karaf", "root");
 
     private final PrintWriter pw;
     private final OutputHandler outputHandler;

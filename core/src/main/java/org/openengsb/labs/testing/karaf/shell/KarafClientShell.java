@@ -1,10 +1,13 @@
 package org.openengsb.labs.testing.karaf.shell;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -13,13 +16,16 @@ import org.openengsb.labs.testing.karaf.KarafException;
 import org.openengsb.labs.testing.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.testing.karaf.output.OutputHandler;
 
-public class SSHShell implements RemoteShell {
+public class KarafClientShell implements RemoteShell {
+    private static final String PROPERTY_FILE_KARAF = "karaf.properties";
+    private static String PROPERTY_KARAF_CLIENT_CMD = "karaf.client.cmd";
+
     private PrintWriter pw;
     private Process process;
     private OutputHandler outputHandler;
     private final KarafPromptRecognizer karafPromptRecognizer;
 
-    public SSHShell(KarafPromptRecognizer karafPromptRecognizer) {
+    public KarafClientShell(KarafPromptRecognizer karafPromptRecognizer) {
         this.karafPromptRecognizer = karafPromptRecognizer;
     }
 
@@ -34,12 +40,19 @@ public class SSHShell implements RemoteShell {
     }
 
     private void startClient() {
-        String separator = System.getProperty("file.separator");
-        String classpath = System.getProperty("java.class.path");
-        String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
-
-        ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp", classpath,
-            org.apache.felix.karaf.client.Main.class.getName());
+        Properties karafProperties = null;
+        try {
+            karafProperties = loadProperties();
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        String karafCmd = karafProperties.getProperty(PROPERTY_KARAF_CLIENT_CMD);
+        ProcessBuilder processBuilder =
+            new ProcessBuilder(karafCmd, "-a", "8101", "-h", "localhost", "-u", "karaf", "-p", "karaf");
         try {
             this.process = processBuilder.start();
         } catch (IOException e) {
@@ -49,6 +62,14 @@ public class SSHShell implements RemoteShell {
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream())));
         this.outputHandler = new OutputHandler(new InputStreamReader(this.process.getInputStream()),
             karafPromptRecognizer);
+    }
+
+    private Properties loadProperties() throws FileNotFoundException, IOException {
+        Properties properties = new Properties();
+        InputStream stream = this.getClass().getClassLoader().getResourceAsStream(PROPERTY_FILE_KARAF);
+        properties.load(stream);
+        stream.close();
+        return properties;
     }
 
     private void stopClient() {
@@ -67,11 +88,13 @@ public class SSHShell implements RemoteShell {
     @Override
     public String execute(String command, Long timeout, TimeUnit timeUnit) throws TimeoutException {
         this.pw.println(command);
+        this.pw.flush();
         return this.outputHandler.getOutput(timeout, timeUnit);
     }
 
     @Override
     public void execute(String command) {
         this.pw.println(command);
+        this.pw.flush();
     }
 }

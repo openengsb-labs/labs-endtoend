@@ -19,9 +19,9 @@ public class OutputHandler {
     private static final Recognizer nullRecognizer = new NullRecognizer();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final InputStreamReader in;
-    private final Recognizer promptRecognizer;
+    private final KarafPromptRecognizer promptRecognizer;
 
-    public OutputHandler(final InputStreamReader in, final Recognizer promptRecognizer) {
+    public OutputHandler(final InputStreamReader in, final KarafPromptRecognizer promptRecognizer) {
         this.in = in;
         this.promptRecognizer = promptRecognizer;
     }
@@ -37,11 +37,12 @@ public class OutputHandler {
 
     public String getOutput(Long time, TimeUnit timeUnit) throws TimeoutException {
         ResponseWorker responseWorker =
-            new ResponseWorker(this.promptRecognizer, this.promptRecognizer, nullRecognizer);
-        Future<Boolean> future = this.executor.submit(responseWorker);
+            new ResponseWorker(this.promptRecognizer);
+        Future<String> future = this.executor.submit(responseWorker);
 
         try {
-            future.get(time, timeUnit);
+            String response = future.get(time, timeUnit);
+            return response;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -59,12 +60,17 @@ public class OutputHandler {
 
     public Boolean recognize(Long time, TimeUnit timeUnit, Recognizer positiveRecognizer,
             Recognizer negativeRecognizer) {
-        Future<Boolean> future =
-            this.executor.submit(new ResponseWorker(this.promptRecognizer, positiveRecognizer, negativeRecognizer));
+        Future<String> future =
+            this.executor.submit(new ResponseWorker(this.promptRecognizer));
 
         Boolean result = false;
         try {
-            result = future.get(time, timeUnit);
+            String response = future.get(time, timeUnit);
+            if (negativeRecognizer.recognize(response)) {
+                return false;
+            } else if (positiveRecognizer.recognize(response)) {
+                return true;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -75,16 +81,12 @@ public class OutputHandler {
         return result;
     }
 
-    private class ResponseWorker implements Callable<Boolean> {
-        private final Recognizer positiveRecognizer;
-        private final Recognizer negativeRecognizer;
+    private class ResponseWorker implements Callable<String> {
         private final StringBuilder out = new StringBuilder();
-        private final Recognizer promptRecognizer;
+        private final KarafPromptRecognizer promptRecognizer;
 
-        public ResponseWorker(Recognizer promptRecognizer, Recognizer positiveRecognizer, Recognizer negativeRecognizer) {
+        public ResponseWorker(KarafPromptRecognizer promptRecognizer) {
             this.promptRecognizer = promptRecognizer;
-            this.positiveRecognizer = positiveRecognizer;
-            this.negativeRecognizer = negativeRecognizer;
         }
 
         public String getOutput() {
@@ -92,7 +94,7 @@ public class OutputHandler {
         }
 
         @Override
-        public Boolean call() throws IOException {
+        public String call() throws IOException {
             CharBuffer buf = CharBuffer.allocate(DEFAULT_BUFFER_SIZE);
 
             while (true) {
@@ -105,11 +107,8 @@ public class OutputHandler {
                 }
 
                 if (this.promptRecognizer.recognize(out.toString())) {
-                    if (this.negativeRecognizer.recognize(out.toString())) {
-                        return false;
-                    } else if (this.positiveRecognizer.recognize(out.toString())) {
-                        return true;
-                    }
+                    out.delete(out.length() - 1 - this.promptRecognizer.getPrompt().length(), out.length());
+                    return out.toString();
                 }
             }
         }

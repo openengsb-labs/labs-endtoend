@@ -13,4 +13,8 @@ public class KarafPromptRecognizer implements Recognizer {
     public boolean recognize(String input) {
         return input.endsWith(this.prompt);
     }
+
+    public String getPrompt() {
+        return prompt;
+    }
 }

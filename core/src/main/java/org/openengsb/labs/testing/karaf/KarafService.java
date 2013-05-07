@@ -8,10 +8,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.openengsb.labs.testing.api.Karaf;
+import org.openengsb.labs.testing.api.RemoteShell;
 import org.openengsb.labs.testing.api.Shell;
 import org.openengsb.labs.testing.karaf.output.KarafPromptRecognizer;
+import org.openengsb.labs.testing.karaf.shell.KarafClientShell;
 import org.openengsb.labs.testing.karaf.shell.KarafShell;
-import org.openengsb.labs.testing.karaf.shell.SSHShell;
 
 public class KarafService implements Karaf {
     private static final String PROPERTY_FILE_KARAF = "karaf.properties";
@@ -66,9 +67,9 @@ public class KarafService implements Karaf {
     }
 
     @Override
-    public SSHShell login(String user, String pass, Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        SSHShell sshShell = new SSHShell(this.karafPromptRecognizer);
-        sshShell.login(user, pass, timeout, timeUnit);
-        return sshShell;
+    public RemoteShell login(String user, String pass, Long timeout, TimeUnit timeUnit) throws TimeoutException {
+        KarafClientShell shell = new KarafClientShell(this.karafPromptRecognizer);
+        shell.login(user, pass, timeout, timeUnit);
+        return shell;
     }
 }

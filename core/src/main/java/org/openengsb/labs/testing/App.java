@@ -4,9 +4,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.openengsb.labs.testing.api.Karaf;
+import org.openengsb.labs.testing.api.RemoteShell;
 import org.openengsb.labs.testing.karaf.KarafException;
 import org.openengsb.labs.testing.karaf.KarafService;
-import org.openengsb.labs.testing.karaf.shell.SSHShell;
 
 public class App {
     public static void main(String[] args) throws KarafException {
@@ -19,10 +19,13 @@ public class App {
             e.printStackTrace();
         }
 
-        SSHShell shell = null;
+        RemoteShell shell = null;
         try {
             System.out.println("Remote login...");
             shell = k.login("root", "pw", 10L, TimeUnit.SECONDS);
+            System.out.println("Executing list command...");
+            String response = shell.execute("list", 10L, TimeUnit.SECONDS);
+            System.out.println(response);
             System.out.println("Logout...");
             shell.logout();
         } catch (TimeoutException e1) {
