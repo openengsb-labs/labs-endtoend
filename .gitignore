@@ -2,3 +2,10 @@
 
 core/tmp
 target/
+
+*.project
+*.settings
+*.classpath
+
+*.idea
+*.iml
