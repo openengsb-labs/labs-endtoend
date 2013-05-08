@@ -1,13 +1,11 @@
 package org.openengsb.labs.testing.karaf.shell;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -17,20 +15,21 @@ import org.openengsb.labs.testing.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.testing.karaf.output.OutputHandler;
 
 public class KarafClientShell implements RemoteShell {
-    private static final String PROPERTY_FILE_KARAF = "karaf.properties";
     private static String PROPERTY_KARAF_CLIENT_CMD = "karaf.client.cmd";
 
     private PrintWriter pw;
     private Process process;
     private OutputHandler outputHandler;
     private final KarafPromptRecognizer karafPromptRecognizer;
+    private final String startCmd;
 
-    public KarafClientShell(KarafPromptRecognizer karafPromptRecognizer) {
+    public KarafClientShell(final String startCmd, KarafPromptRecognizer karafPromptRecognizer) {
+        this.startCmd = startCmd;
         this.karafPromptRecognizer = karafPromptRecognizer;
     }
 
     public void login(String user, String pass, Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        startClient();
+        startClient(user, pass);
         outputHandler.recognize(timeout, timeUnit, this.karafPromptRecognizer);
     }
 
@@ -39,20 +38,11 @@ public class KarafClientShell implements RemoteShell {
         outputHandler.recognize(timeout, timeUnit, this.karafPromptRecognizer);
     }
 
-    private void startClient() {
-        Properties karafProperties = null;
-        try {
-            karafProperties = loadProperties();
-        } catch (FileNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        String karafCmd = karafProperties.getProperty(PROPERTY_KARAF_CLIENT_CMD);
+    private void startClient(String user, String pass) {
+        new File(this.startCmd).setExecutable(true); // TODO: Preserve permissions!
+
         ProcessBuilder processBuilder =
-            new ProcessBuilder(karafCmd, "-a", "8101", "-h", "localhost", "-u", "karaf", "-p", "karaf");
+            new ProcessBuilder(this.startCmd, "-a", "8101", "-h", "localhost", "-u", user, "-p", pass);
         try {
             this.process = processBuilder.start();
         } catch (IOException e) {
@@ -62,14 +52,6 @@ public class KarafClientShell implements RemoteShell {
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream())));
         this.outputHandler = new OutputHandler(new InputStreamReader(this.process.getInputStream()),
             karafPromptRecognizer);
-    }
-
-    private Properties loadProperties() throws FileNotFoundException, IOException {
-        Properties properties = new Properties();
-        InputStream stream = this.getClass().getClassLoader().getResourceAsStream(PROPERTY_FILE_KARAF);
-        properties.load(stream);
-        stream.close();
-        return properties;
     }
 
     private void stopClient() {
