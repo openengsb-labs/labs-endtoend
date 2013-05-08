@@ -1,20 +1,22 @@
 package org.openengsb.labs.endtoend.testcontext;
 
-import java.io.File;
-
 public class TestContextID {
-    private final File configFile;
+    private final String configFileName;
 
-    public TestContextID(File configFile) {
-        super();
-        this.configFile = configFile;
+    public TestContextID(String configFileName) {
+        this.configFileName = configFileName;
+    }
+
+    @Override
+    public String toString() {
+        return configFileName;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((configFile == null) ? 0 : configFile.hashCode());
+        result = prime * result + ((configFileName == null) ? 0 : configFileName.hashCode());
         return result;
     }
 
@@ -27,18 +29,11 @@ public class TestContextID {
         if (getClass() != obj.getClass())
             return false;
         TestContextID other = (TestContextID) obj;
-        if (configFile == null) {
-            if (other.configFile != null)
+        if (configFileName == null) {
+            if (other.configFileName != null)
                 return false;
-        } else if (!configFile.equals(other.configFile))
+        } else if (!configFileName.equals(other.configFileName))
             return false;
         return true;
     }
-
-    @Override
-    public String toString() {
-        // TODO Unique name.
-        return configFile.getName();
-    }
-
 }
