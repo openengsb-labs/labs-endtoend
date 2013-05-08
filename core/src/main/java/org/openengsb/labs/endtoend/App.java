@@ -25,10 +25,9 @@ public class App {
 
         TestContextLoader testContextLoader = new TestContextLoader(ds);
         testContextLoader.loadContexts();
-
         TestContext context = testContextLoader.getDefaultTestContext();
-        context.setup();
 
+        context.setup();
         Karaf k = context.getKaraf();
         try {
             System.out.println("Starting Karaf...");
@@ -60,7 +59,6 @@ public class App {
         context.teardown();
 
         System.out.println("Finished.");
-
     }
 
     private static File getCurrentDir() {

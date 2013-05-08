@@ -21,8 +21,7 @@ public class KarafShell implements Shell {
 
     public KarafShell(OutputStream output, InputStream input) {
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(output)));
-        this.outputHandler = new OutputHandler(new InputStreamReader(input),
-            karafPromptRecognizer);
+        this.outputHandler = new OutputHandler(new InputStreamReader(input), karafPromptRecognizer);
     }
 
     @Override
@@ -37,8 +36,9 @@ public class KarafShell implements Shell {
 
     @Override
     public String execute(String command, Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        // TODO Auto-generated method stub
-        return null;
+        this.pw.println(command);
+        this.pw.flush();
+        return this.outputHandler.getOutput(timeout, timeUnit);
     }
 
     public void close() {

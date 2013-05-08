@@ -15,6 +15,7 @@ public class TestContext {
     private final String karafClientCmd;
 
     private ExtractedDistribution extractedDistribution;
+    private KarafService karaf;
 
     public TestContext(Distribution distribution, String karafCmd, String karafClientCmd) {
         this.distribution = distribution;
@@ -23,12 +24,13 @@ public class TestContext {
     }
 
     public Karaf getKaraf() {
-        String prefix = this.extractedDistribution.getDistributionDir() + File.separator;
-        return new KarafService(prefix + this.karafCmd, prefix + this.karafClientCmd);
+        return this.karaf;
     }
 
     public void setup() throws IOException, UnsupportedArchiveTypeException {
         this.extractedDistribution = distribution.extract();
+        String prefix = this.extractedDistribution.getDistributionDir() + File.separator;
+        this.karaf = new KarafService(prefix + this.karafCmd, prefix + this.karafClientCmd);
     }
 
     public void teardown() throws IOException {

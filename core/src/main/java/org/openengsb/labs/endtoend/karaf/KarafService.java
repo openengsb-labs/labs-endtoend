@@ -3,6 +3,11 @@ package org.openengsb.labs.endtoend.karaf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -54,6 +59,33 @@ public class KarafService implements Karaf {
         this.karafShell.execute("osgi:shutdown");
         this.karafShell.execute("yes");
         this.karafShell.close();
+
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        Future<Integer> waitFor = service.submit(new ShutdownWorker(this.karafProcess));
+        try {
+            waitFor.get(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            this.karafProcess.destroy();
+            throw e;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        service.shutdown();
+    }
+
+    private class ShutdownWorker implements Callable<Integer> {
+        private Process process;
+
+        public ShutdownWorker(Process process) {
+            this.process = process;
+        }
+
+        @Override
+        public Integer call() throws IOException, InterruptedException {
+            return this.process.waitFor();
+        }
     }
 
     @Override

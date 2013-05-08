@@ -70,8 +70,8 @@ public class TestContextLoader {
         return properties;
     }
 
-    public TestContext getTestContext(TestContextID name) {
-        return testContexts.get(name);
+    public TestContext getTestContext(TestContextID contextId) {
+        return testContexts.get(contextId);
     }
 
     public TestContext getDefaultTestContext() throws NoContextFileForSystemFoundException {
