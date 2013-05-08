@@ -8,18 +8,18 @@
 		<version>7</version>
 	</parent>
 
-	<groupId>org.openengsb.labs.testing</groupId>
-	<artifactId>labs-testing-parent</artifactId>
+	<groupId>org.openengsb.labs.endtoend</groupId>
+	<artifactId>labs-endtoend-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>labs-testing</name>
+	<name>labs-endtoend</name>
 	<url>http://maven.apache.org</url>
 
 	<scm>
-		<connection>scm:git:git://github.com/openengsb-labs/labs-testing.git</connection>
-		<developerConnection>scm:git:git@github.com:openengsb-labs/labs-testing.git</developerConnection>
-		<url>http://github.com/openengsb-labs/labs-testing</url>
+		<connection>scm:git:git://github.com/openengsb-labs/labs-endtoend.git</connection>
+		<developerConnection>scm:git:git@github.com:openengsb-labs/labs-endtoend.git</developerConnection>
+		<url>http://github.com/openengsb-labs/labs-endtoend</url>
 	</scm>
 
 	<properties>
