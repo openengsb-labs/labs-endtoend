@@ -2,6 +2,7 @@
 
 core/tmp
 target/
+bin/
 
 *.project
 *.settings

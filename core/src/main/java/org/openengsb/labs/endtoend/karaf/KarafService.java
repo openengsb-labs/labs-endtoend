@@ -15,7 +15,6 @@ import org.openengsb.labs.endtoend.karaf.shell.KarafShell;
 
 public class KarafService implements Karaf {
     private final String startCmd;
-    private final KarafPromptRecognizer karafPromptRecognizer = new KarafPromptRecognizer("karaf", "root");
     private Process karafProcess;
     private KarafShell karafShell;
     private String clientStartCmd;
@@ -26,8 +25,7 @@ public class KarafService implements Karaf {
     }
 
     @Override
-    public void start(Long timeout, TimeUnit timeUnit)
-        throws TimeoutException {
+    public void start(Long timeout, TimeUnit timeUnit) throws TimeoutException {
         try {
             startKaraf(timeout, timeUnit);
         } catch (FileNotFoundException e) {
@@ -40,9 +38,8 @@ public class KarafService implements Karaf {
     }
 
     private void startKaraf(Long timeout, TimeUnit timeUnit) throws TimeoutException, FileNotFoundException,
-        IOException {
-
-        new File(this.startCmd).setExecutable(true); // TODO: Preserve permissions!
+            IOException {
+        new File(this.startCmd).setExecutable(true);
 
         ProcessBuilder pb = new ProcessBuilder(this.startCmd);
         // TODO Set working dir? pb.directory(new File("myDir"));
@@ -66,10 +63,9 @@ public class KarafService implements Karaf {
 
     @Override
     public RemoteShell login(String user, String pass, Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        KarafClientShell shell = new KarafClientShell(this.clientStartCmd, this.karafPromptRecognizer); // TODO Create
-                                                                                                        // karafPromptRecognizer
-                                                                                                        // for client.
+        KarafClientShell shell = new KarafClientShell(this.clientStartCmd, new KarafPromptRecognizer(user, "root"));
         shell.login(user, pass, timeout, timeUnit);
+
         return shell;
     }
 }

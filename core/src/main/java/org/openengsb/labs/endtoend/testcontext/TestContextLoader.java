@@ -31,7 +31,7 @@ public class TestContextLoader {
         for (File file : configFiles) {
             Properties karafProperties = loadProperties(file);
             String karafCmd = karafProperties.getProperty(PROPERTY_KARAF_CMD);
-            String karafClientCmd = karafProperties.getProperty(PROPERTY_KARAF_CMD);
+            String karafClientCmd = karafProperties.getProperty(PROPERTY_KARAF_CLIENT_CMD);
             File distributionFile = new File(karafProperties.getProperty(PROPERTY_DISTRIBUTION_FILE));
 
             TestContextID testContextID = new TestContextID(file);

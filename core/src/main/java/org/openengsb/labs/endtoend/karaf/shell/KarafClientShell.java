@@ -15,8 +15,6 @@ import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
 
 public class KarafClientShell implements RemoteShell {
-    private static String PROPERTY_KARAF_CLIENT_CMD = "karaf.client.cmd";
-
     private PrintWriter pw;
     private Process process;
     private OutputHandler outputHandler;
@@ -39,10 +37,10 @@ public class KarafClientShell implements RemoteShell {
     }
 
     private void startClient(String user, String pass) {
-        new File(this.startCmd).setExecutable(true); // TODO: Preserve permissions!
+        new File(this.startCmd).setExecutable(true);
 
-        ProcessBuilder processBuilder =
-            new ProcessBuilder(this.startCmd, "-a", "8101", "-h", "localhost", "-u", user, "-p", pass);
+        ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd, "-a", "8101", "-h", "localhost", "-u", user,
+                "-p", pass);
         try {
             this.process = processBuilder.start();
         } catch (IOException e) {
@@ -51,7 +49,7 @@ public class KarafClientShell implements RemoteShell {
 
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream())));
         this.outputHandler = new OutputHandler(new InputStreamReader(this.process.getInputStream()),
-            karafPromptRecognizer);
+                karafPromptRecognizer);
     }
 
     private void stopClient() {

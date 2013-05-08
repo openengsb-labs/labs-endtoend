@@ -15,7 +15,7 @@ import org.openengsb.labs.endtoend.recognizer.NullRecognizer;
 import org.openengsb.labs.endtoend.recognizer.Recognizer;
 
 public class OutputHandler {
-    private static final int DEFAULT_BUFFER_SIZE = 20;
+    private static final int DEFAULT_BUFFER_SIZE = 1024;
     private static final Recognizer nullRecognizer = new NullRecognizer();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final InputStreamReader in;
@@ -36,8 +36,7 @@ public class OutputHandler {
     }
 
     public String getOutput(Long time, TimeUnit timeUnit) throws TimeoutException {
-        ResponseWorker responseWorker =
-            new ResponseWorker(this.promptRecognizer);
+        ResponseWorker responseWorker = new ResponseWorker(this.promptRecognizer);
         Future<String> future = this.executor.submit(responseWorker);
 
         try {
@@ -54,14 +53,13 @@ public class OutputHandler {
         return responseWorker.getOutput();
     }
 
-    public Boolean recognize(Long time, TimeUnit timeUnit, Recognizer positiveRecognizer) {
+    public Boolean recognize(Long time, TimeUnit timeUnit, Recognizer positiveRecognizer) throws TimeoutException {
         return recognize(time, timeUnit, positiveRecognizer, nullRecognizer);
     }
 
-    public Boolean recognize(Long time, TimeUnit timeUnit, Recognizer positiveRecognizer,
-            Recognizer negativeRecognizer) {
-        Future<String> future =
-            this.executor.submit(new ResponseWorker(this.promptRecognizer));
+    public Boolean recognize(Long time, TimeUnit timeUnit, Recognizer positiveRecognizer, Recognizer negativeRecognizer)
+            throws TimeoutException {
+        Future<String> future = this.executor.submit(new ResponseWorker(this.promptRecognizer));
 
         Boolean result = false;
         try {
@@ -76,6 +74,7 @@ public class OutputHandler {
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
+            throw e;
         }
 
         return result;
