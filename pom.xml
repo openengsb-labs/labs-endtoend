@@ -98,6 +98,19 @@
 					</licenseMapping>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.servicemix.tooling</groupId>
+				<artifactId>depends-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+			  			<id>generate-depends-file</id>
+			  			<goals>
+			    			<goal>generate-depends-file</goal>
+			  			</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -113,6 +126,12 @@
 				<groupId>org.ops4j.pax.tinybundles</groupId>
 				<artifactId>tinybundles</artifactId>
 				<version>1.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-aether</artifactId>
+				<version>1.5.2</version>
 			</dependency>
 
 			<dependency>
@@ -140,10 +159,10 @@
 			</dependency>
 
 			<dependency>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-core</artifactId>
-                                <version>3.2.2.RELEASE</version>
-                        </dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>3.2.2.RELEASE</version>
+			</dependency>
 
 		</dependencies>
 	</dependencyManagement>
