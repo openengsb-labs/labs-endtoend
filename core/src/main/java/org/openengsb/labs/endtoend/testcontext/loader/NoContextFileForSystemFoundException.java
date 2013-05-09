@@ -1,4 +1,4 @@
-package org.openengsb.labs.endtoend.testcontext;
+package org.openengsb.labs.endtoend.testcontext.loader;
 
 import org.openengsb.labs.endtoend.util.Arch;
 import org.openengsb.labs.endtoend.util.OS;

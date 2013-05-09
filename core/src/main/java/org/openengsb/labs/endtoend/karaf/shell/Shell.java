@@ -1,4 +1,4 @@
-package org.openengsb.labs.endtoend.api;
+package org.openengsb.labs.endtoend.karaf.shell;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

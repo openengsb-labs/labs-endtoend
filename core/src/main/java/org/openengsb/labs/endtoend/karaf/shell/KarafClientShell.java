@@ -9,38 +9,41 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.openengsb.labs.endtoend.api.RemoteShell;
 import org.openengsb.labs.endtoend.karaf.KarafException;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
 
 public class KarafClientShell implements RemoteShell {
+    private final String startCmd;
     private PrintWriter pw;
     private Process process;
     private OutputHandler outputHandler;
-    private final KarafPromptRecognizer karafPromptRecognizer;
-    private final String startCmd;
 
-    public KarafClientShell(final String startCmd, KarafPromptRecognizer karafPromptRecognizer) {
+    public KarafClientShell(final String startCmd) {
         this.startCmd = startCmd;
-        this.karafPromptRecognizer = karafPromptRecognizer;
     }
 
-    public void login(String user, String pass, Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        startClient(user, pass);
-        outputHandler.recognize(timeout, timeUnit, this.karafPromptRecognizer);
+    public void login(String applicationName, String host, Integer port, String user, String pass, Long timeout,
+            TimeUnit timeUnit) throws TimeoutException {
+        startClient(applicationName, host, port, user, pass);
+
+        try {
+            outputHandler.waitForPrompt(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            stopClient();
+            throw e;
+        }
     }
 
     @Override
     public void waitForPrompt(Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        outputHandler.recognize(timeout, timeUnit, this.karafPromptRecognizer);
+        outputHandler.waitForPrompt(timeout, timeUnit);
     }
 
-    private void startClient(String user, String pass) {
+    private void startClient(String applicationName, String host, Integer port, String user, String pass) {
         new File(this.startCmd).setExecutable(true);
 
-        ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd, "-a", "8101", "-h", "localhost", "-u", user,
-                "-p", pass);
+        ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd, "-a", port.toString(), "-h", host, "-u", user);
         try {
             this.process = processBuilder.start();
         } catch (IOException e) {
@@ -48,8 +51,12 @@ public class KarafClientShell implements RemoteShell {
         }
 
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream())));
+        if (!pass.isEmpty()) {
+            this.pw.println(pass);
+            this.pw.flush();
+        }
         this.outputHandler = new OutputHandler(new InputStreamReader(this.process.getInputStream()),
-                karafPromptRecognizer);
+                new KarafPromptRecognizer(user, applicationName));
     }
 
     private void stopClient() {
@@ -59,8 +66,7 @@ public class KarafClientShell implements RemoteShell {
 
     @Override
     public void logout() throws KarafException {
-        this.pw.println("osgi:shutdown");
-        this.pw.println("yes");
+        this.pw.println("logout");
         this.pw.flush();
         stopClient();
     }

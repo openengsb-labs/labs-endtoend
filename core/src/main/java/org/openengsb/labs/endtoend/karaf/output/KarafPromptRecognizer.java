@@ -11,7 +11,7 @@ public class KarafPromptRecognizer implements Recognizer {
 
     @Override
     public boolean recognize(String input) {
-        return input.endsWith(this.prompt);
+        return input.contains(this.prompt);
     }
 
     public String getPrompt() {

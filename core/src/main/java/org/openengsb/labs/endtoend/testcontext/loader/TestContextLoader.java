@@ -1,19 +1,21 @@
-package org.openengsb.labs.endtoend.testcontext;
+package org.openengsb.labs.endtoend.testcontext.loader;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.openengsb.labs.endtoend.distribution.Distribution;
-import org.openengsb.labs.endtoend.distribution.DistributionExtractor;
+import org.openengsb.labs.endtoend.distribution.extractor.DistributionExtractor;
+import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
+import org.openengsb.labs.endtoend.testcontext.TestContext;
+import org.openengsb.labs.endtoend.testcontext.TestContextID;
+import org.openengsb.labs.endtoend.testcontext.configuration.ContextConfiguration;
+import org.openengsb.labs.endtoend.testcontext.configuration.InvalidConfiguration;
 import org.openengsb.labs.endtoend.util.Arch;
 import org.openengsb.labs.endtoend.util.OS;
 import org.springframework.core.io.Resource;
@@ -24,20 +26,38 @@ public class TestContextLoader {
     private static final String FILE_PREFIX = "endtoend";
     private static final Pattern PATTERN_FILE = Pattern.compile("^" + FILE_PREFIX + "(?:\\.(.*))?\\.(.*)\\.(.*)\\."
             + FILE_ENDING + "$");
-    private static final String PROPERTY_DISTRIBUTION_FILE = "distribution.file";
-    private static final String PROPERTY_KARAF_CMD = "karaf.cmd";
-    private static final String PROPERTY_KARAF_CLIENT_CMD = "karaf.client.cmd";
 
     private final DistributionExtractor distributionExtractor;
     private final Map<TestContextID, TestContext> testContexts = new HashMap<TestContextID, TestContext>();
+    private final DistributionResolver distributionResolver;
 
-    public TestContextLoader(DistributionExtractor distributionExtractor) {
+    public TestContextLoader(DistributionResolver distributionResolver, DistributionExtractor distributionExtractor) {
+        this.distributionResolver = distributionResolver;
         this.distributionExtractor = distributionExtractor;
     }
 
-    public void loadContexts() throws FileNotFoundException, IOException, InvalidContextFileFoundException {
+    public void loadContexts() throws FileNotFoundException, IOException, InvalidContextFileFound {
         Set<File> endToEndFilesFromResources = getEndToEndFilesFromResources();
         loadContexts(endToEndFilesFromResources);
+    }
+
+    public void loadContexts(Set<File> configFiles) throws FileNotFoundException, IOException, InvalidContextFileFound {
+        for (File file : configFiles) {
+            ContextConfiguration contextConfiguration;
+            TestContextID testContextID;
+
+            try {
+                contextConfiguration = ContextConfiguration.loadFromFile(file);
+                testContextID = parseContextID(file.getName());
+            } catch (InvalidConfiguration e) {
+                throw new InvalidContextFileFound(file.getName(), e);
+            } catch (InvalidContextFileName e) {
+                throw new InvalidContextFileFound(file.getName(), e);
+            }
+
+            testContexts.put(testContextID, new TestContext(testContextID, this.distributionResolver,
+                    this.distributionExtractor, contextConfiguration));
+        }
     }
 
     private Set<File> getEndToEndFilesFromResources() throws IOException {
@@ -50,41 +70,14 @@ public class TestContextLoader {
         return files;
     }
 
-    public void loadContexts(Set<File> configFiles) throws FileNotFoundException, IOException,
-            InvalidContextFileFoundException {
-        for (File file : configFiles) {
-            Properties karafProperties = loadProperties(file);
-            String karafCmd = karafProperties.getProperty(PROPERTY_KARAF_CMD);
-            String karafClientCmd = karafProperties.getProperty(PROPERTY_KARAF_CLIENT_CMD);
-            File distributionFile = new File(karafProperties.getProperty(PROPERTY_DISTRIBUTION_FILE));
-
-            TestContextID testContextID = parseContextFilename(file.getName());
-            Distribution distribution = createDistribution(testContextID, distributionFile);
-
-            testContexts.put(testContextID, new TestContext(distribution, karafCmd, karafClientCmd));
-        }
-    }
-
-    private TestContextID parseContextFilename(String filename) throws InvalidContextFileFoundException {
+    private TestContextID parseContextID(String filename) throws InvalidContextFileName {
         Matcher m = PATTERN_FILE.matcher(filename);
 
         if (!m.find()) {
-            throw new InvalidContextFileFoundException(filename);
+            throw new InvalidContextFileName(filename);
         }
 
         return new TestContextID(m.group(1), OS.fromString(m.group(2)), Arch.fromString(m.group(3)));
-    }
-
-    private Distribution createDistribution(TestContextID testContextID, File distributionFile) {
-        return new Distribution(this.distributionExtractor, testContextID, distributionFile);
-    }
-
-    private Properties loadProperties(File file) throws FileNotFoundException, IOException {
-        Properties properties = new Properties();
-        FileInputStream stream = new FileInputStream(file);
-        properties.load(stream);
-        stream.close();
-        return properties;
     }
 
     public TestContext getTestContext(String contextName) {

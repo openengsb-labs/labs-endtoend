@@ -2,29 +2,36 @@ package org.openengsb.labs.endtoend.distribution;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import org.openengsb.labs.endtoend.testcontext.TestContextID;
+import org.openengsb.labs.endtoend.karaf.Karaf;
+import org.openengsb.labs.endtoend.karaf.KarafService;
 
 public class Distribution {
-    private final DistributionExtractor distributionExtractor;
-    private final TestContextID testContextID;
-    private final File distributionFile;
+    private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 20L;
 
-    public Distribution(DistributionExtractor distributionExtractor, TestContextID testContextID, File distributionFile) {
-        this.distributionExtractor = distributionExtractor;
-        this.testContextID = testContextID;
-        this.distributionFile = distributionFile;
+    private final ExtractedDistribution extractedDistribution;
+
+    private final Karaf karaf;
+
+    public Distribution(ExtractedDistribution extractedDistribution, String karafAppname, Integer karafPort,
+            String karafCmd, String karafClientCmd) {
+        this.extractedDistribution = extractedDistribution;
+        String prefix = extractedDistribution.getDistributionDir() + File.separator;
+        this.karaf = new KarafService(karafAppname, karafPort, prefix + karafCmd, prefix + karafClientCmd);
     }
 
-    public ExtractedDistribution extract() throws IOException, UnsupportedArchiveTypeException {
-        return this.distributionExtractor.getExtractedDistribution(this);
+    public Karaf getKaraf() {
+        return this.karaf;
     }
 
-    public TestContextID getTestContextID() {
-        return testContextID;
-    }
-
-    public File getDistributionFile() {
-        return distributionFile;
+    public void delete() throws IOException {
+        try {
+            this.karaf.shutdown(DEFAULT_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            this.karaf.kill();
+        }
+        this.extractedDistribution.delete();
     }
 }

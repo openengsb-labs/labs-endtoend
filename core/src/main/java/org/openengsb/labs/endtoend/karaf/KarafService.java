@@ -11,20 +11,22 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.openengsb.labs.endtoend.api.Karaf;
-import org.openengsb.labs.endtoend.api.RemoteShell;
-import org.openengsb.labs.endtoend.api.Shell;
-import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.shell.KarafClientShell;
 import org.openengsb.labs.endtoend.karaf.shell.KarafShell;
+import org.openengsb.labs.endtoend.karaf.shell.RemoteShell;
+import org.openengsb.labs.endtoend.karaf.shell.Shell;
 
 public class KarafService implements Karaf {
+    private final String applicationName;
+    private final Integer port;
     private final String startCmd;
+    private final String clientStartCmd;
     private Process karafProcess;
     private KarafShell karafShell;
-    private String clientStartCmd;
 
-    public KarafService(final String startCmd, final String clientStartCmd) {
+    public KarafService(String applicationName, Integer port, String startCmd, String clientStartCmd) {
+        this.applicationName = applicationName;
+        this.port = port;
         this.startCmd = startCmd;
         this.clientStartCmd = clientStartCmd;
     }
@@ -34,10 +36,8 @@ public class KarafService implements Karaf {
         try {
             startKaraf(timeout, timeUnit);
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -50,13 +50,14 @@ public class KarafService implements Karaf {
         // TODO Set working dir? pb.directory(new File("myDir"));
 
         this.karafProcess = pb.start();
-        this.karafShell = new KarafShell(this.karafProcess.getOutputStream(), this.karafProcess.getInputStream());
+        this.karafShell = new KarafShell(this.karafProcess.getOutputStream(), this.karafProcess.getInputStream(),
+                this.applicationName);
         this.karafShell.waitForPrompt(timeout, TimeUnit.SECONDS);
     }
 
     @Override
     public void shutdown(Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        this.karafShell.execute("osgi:shutdown");
+        this.karafShell.execute("system:shutdown");
         this.karafShell.execute("yes");
         this.karafShell.close();
 
@@ -65,14 +66,16 @@ public class KarafService implements Karaf {
         try {
             waitFor.get(timeout, timeUnit);
         } catch (TimeoutException e) {
+            waitFor.cancel(true);
             this.karafProcess.destroy();
             throw e;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            service.shutdown();
         }
-        service.shutdown();
     }
 
     private class ShutdownWorker implements Callable<Integer> {
@@ -84,8 +87,17 @@ public class KarafService implements Karaf {
 
         @Override
         public Integer call() throws IOException, InterruptedException {
-            return this.process.waitFor();
+            try {
+                return this.process.waitFor();
+            } catch (InterruptedException e) {
+                return 0;
+            }
         }
+    }
+
+    @Override
+    public void kill() {
+        this.karafProcess.destroy();
     }
 
     @Override
@@ -95,8 +107,8 @@ public class KarafService implements Karaf {
 
     @Override
     public RemoteShell login(String user, String pass, Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        KarafClientShell shell = new KarafClientShell(this.clientStartCmd, new KarafPromptRecognizer(user, "root"));
-        shell.login(user, pass, timeout, timeUnit);
+        KarafClientShell shell = new KarafClientShell(this.clientStartCmd);
+        shell.login(this.applicationName, "localhost", this.port, user, pass, timeout, timeUnit);
 
         return shell;
     }

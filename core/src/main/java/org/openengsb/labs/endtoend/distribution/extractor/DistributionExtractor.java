@@ -1,4 +1,4 @@
-package org.openengsb.labs.endtoend.distribution;
+package org.openengsb.labs.endtoend.distribution.extractor;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,24 +20,43 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.openengsb.labs.endtoend.distribution.ExtractedDistribution;
+import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
+import org.openengsb.labs.endtoend.testcontext.TestContext;
+import org.openengsb.labs.endtoend.util.BinaryKey;
 
 public class DistributionExtractor {
-    private final Map<Distribution, ExtractedDistribution> uncompressedDistributions = new HashMap<Distribution, ExtractedDistribution>();
-    private final File destinationDir;
 
-    public DistributionExtractor(File destinationDir) {
-        this.destinationDir = destinationDir;
+    private final Map<BinaryKey<TestContext, ResolvedDistribution>, ExtractedDistribution> uncompressedDistributions = new HashMap<BinaryKey<TestContext, ResolvedDistribution>, ExtractedDistribution>();
+    private final File destinationRoot;
+
+    public DistributionExtractor(File destinationRoot) {
+        this.destinationRoot = destinationRoot;
     }
 
-    public ExtractedDistribution getExtractedDistribution(Distribution distribution) throws IOException,
-            UnsupportedArchiveTypeException {
-        ExtractedDistribution extractedDistribution = this.uncompressedDistributions.get(distribution);
+    public ExtractedDistribution getExtractedDistribution(TestContext testContext, ResolvedDistribution distribution)
+            throws UnsupportedArchiveTypeException, DistributionExtractionException {
+
+        BinaryKey<TestContext, ResolvedDistribution> key = new BinaryKey<TestContext, ResolvedDistribution>(
+                testContext, distribution);
+
+        ExtractedDistribution extractedDistribution = this.uncompressedDistributions.get(key);
         if (null == extractedDistribution) {
-            File distributionDir = new File(this.destinationDir, distribution.getTestContextID().toString());
-            extractDistribution(distribution.getDistributionFile().toURI().toURL(), distributionDir);
+            String destinationDir = testContext.getId().toString();
+            File distributionDir = new File(this.destinationRoot, destinationDir);
+
+            try {
+                extractDistribution(distribution.getDistributionFile().toURI().toURL(), distributionDir);
+            } catch (MalformedURLException e) {
+                throw new DistributionExtractionException(e);
+            } catch (IOException e) {
+                throw new DistributionExtractionException(e);
+            }
+
             // makeScriptsInBinExec(new File(distributionDir + "/bin"));
+
             extractedDistribution = new ExtractedDistribution(distributionDir);
-            this.uncompressedDistributions.put(distribution, extractedDistribution);
+            this.uncompressedDistributions.put(key, extractedDistribution);
         }
 
         return extractedDistribution;

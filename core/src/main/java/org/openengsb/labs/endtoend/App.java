@@ -1,26 +1,25 @@
 package org.openengsb.labs.endtoend;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.openengsb.labs.endtoend.api.Karaf;
-import org.openengsb.labs.endtoend.api.RemoteShell;
-import org.openengsb.labs.endtoend.distribution.DistributionExtractor;
-import org.openengsb.labs.endtoend.distribution.UnsupportedArchiveTypeException;
+import org.openengsb.labs.endtoend.distribution.extractor.DistributionExtractor;
+import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
+import org.openengsb.labs.endtoend.karaf.Karaf;
 import org.openengsb.labs.endtoend.karaf.KarafException;
-import org.openengsb.labs.endtoend.testcontext.InvalidContextFileFoundException;
-import org.openengsb.labs.endtoend.testcontext.NoContextFileForSystemFoundException;
+import org.openengsb.labs.endtoend.karaf.shell.RemoteShell;
+import org.openengsb.labs.endtoend.karaf.shell.Shell;
 import org.openengsb.labs.endtoend.testcontext.TestContext;
-import org.openengsb.labs.endtoend.testcontext.TestContextLoader;
+import org.openengsb.labs.endtoend.testcontext.TestContextSetupException;
+import org.openengsb.labs.endtoend.testcontext.TestContextTeardownException;
+import org.openengsb.labs.endtoend.testcontext.loader.TestContextLoader;
 
 public class App {
     private static final String EXTRACTION_DIR = getCurrentDir() + "/tmp";
 
-    public static void main(String[] args) throws KarafException, FileNotFoundException, IOException,
-            UnsupportedArchiveTypeException, NoContextFileForSystemFoundException, InvalidContextFileFoundException {
+    public static void main(String[] args) throws Exception {
         new App().exampleTest();
     }
 
@@ -29,11 +28,11 @@ public class App {
         return new File(dir);
     }
 
-    private void exampleTest() throws FileNotFoundException, IOException, InvalidContextFileFoundException,
-            NoContextFileForSystemFoundException, UnsupportedArchiveTypeException, KarafException {
+    private void exampleTest() throws MalformedURLException, Exception {
+        DistributionResolver dr = new DistributionResolver();
         DistributionExtractor ds = new DistributionExtractor(new File(EXTRACTION_DIR));
 
-        TestContextLoader testContextLoader = new TestContextLoader(ds);
+        TestContextLoader testContextLoader = new TestContextLoader(dr, ds);
         testContextLoader.loadContexts();
         TestContext context;
 
@@ -46,36 +45,46 @@ public class App {
         runTestsWithContext(context);
     }
 
-    private void runTestsWithContext(TestContext context) throws IOException, UnsupportedArchiveTypeException,
-            KarafException {
+    private void runTestsWithContext(TestContext context) throws KarafException, TestContextSetupException,
+            TestContextTeardownException {
         context.setup();
 
-        Karaf k = context.getKaraf();
+        Karaf k = context.getDistribution().getKaraf();
         try {
             System.out.println("Starting Karaf...");
             k.start(10L, TimeUnit.SECONDS);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Timeout!");
         }
 
-        RemoteShell shell = null;
+        System.out.println("Executing list command (local shell)...");
+        Shell shell = k.getShell();
+        try {
+            String response = null;
+            response = shell.execute("list", 10L, TimeUnit.SECONDS);
+            System.out.println(response);
+        } catch (TimeoutException e2) {
+            System.out.println("Timeout!");
+        }
+
+        RemoteShell remoteShell = null;
         try {
             System.out.println("Remote login...");
-            shell = k.login("karaf", "karaf", 10L, TimeUnit.SECONDS);
-            System.out.println("Executing list command...");
-            String response = shell.execute("list", 10L, TimeUnit.SECONDS);
+            remoteShell = k.login("karaf", "", 20L, TimeUnit.SECONDS);
+            System.out.println("Executing list command (remote shell)...");
+            String response = remoteShell.execute("list", 10L, TimeUnit.SECONDS);
             System.out.println(response);
             System.out.println("Logout...");
-            shell.logout();
+            remoteShell.logout();
         } catch (TimeoutException e1) {
-            e1.printStackTrace();
+            System.out.println("Timeout!");
         }
 
         try {
             System.out.println("Stopping Karaf...");
             k.shutdown(10L, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-            e.printStackTrace();
+            System.out.println("Timeout!");
         }
 
         context.teardown();

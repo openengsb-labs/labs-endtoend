@@ -9,24 +9,22 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.openengsb.labs.endtoend.api.Shell;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
 
 public class KarafShell implements Shell {
-    private final KarafPromptRecognizer karafPromptRecognizer = new KarafPromptRecognizer("karaf", "root");
-
     private final PrintWriter pw;
     private final OutputHandler outputHandler;
 
-    public KarafShell(OutputStream output, InputStream input) {
+    public KarafShell(OutputStream output, InputStream input, String applicationName) {
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(output)));
-        this.outputHandler = new OutputHandler(new InputStreamReader(input), karafPromptRecognizer);
+        this.outputHandler = new OutputHandler(new InputStreamReader(input), new KarafPromptRecognizer("karaf",
+                applicationName));
     }
 
     @Override
     public void waitForPrompt(Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        outputHandler.recognize(timeout, timeUnit, this.karafPromptRecognizer);
+        outputHandler.waitForPrompt(timeout, timeUnit);
     }
 
     public void execute(String command) {

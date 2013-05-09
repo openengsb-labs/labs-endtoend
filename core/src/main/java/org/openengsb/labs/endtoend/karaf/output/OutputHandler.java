@@ -47,10 +47,15 @@ public class OutputHandler {
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
+            future.cancel(true);
             throw e;
         }
 
         return responseWorker.getOutput();
+    }
+
+    public void waitForPrompt(Long timeout, TimeUnit timeUnit) throws TimeoutException {
+        recognize(timeout, timeUnit, this.promptRecognizer);
     }
 
     public Boolean recognize(Long time, TimeUnit timeUnit, Recognizer positiveRecognizer) throws TimeoutException {
@@ -74,6 +79,7 @@ public class OutputHandler {
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
+            future.cancel(true);
             throw e;
         }
 
