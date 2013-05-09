@@ -1,9 +1,12 @@
 package org.openengsb.labs.endtoend.testcontext;
 
+import org.openengsb.labs.endtoend.util.Arch;
+import org.openengsb.labs.endtoend.util.OS;
+
 public class TestContextID {
     private final String id;
 
-    public TestContextID(String contextName, String osName, String osArch) {
+    public TestContextID(String contextName, OS osName, Arch osArch) {
         String tmp = osName + "." + osArch;
         if (null != contextName && contextName.length() > 0) {
             tmp = contextName + "." + tmp;
@@ -11,7 +14,7 @@ public class TestContextID {
         this.id = tmp;
     }
 
-    public TestContextID(String osName, String osArch) {
+    public TestContextID(OS osName, Arch osArch) {
         this.id = osName + "." + osArch;
     }
 

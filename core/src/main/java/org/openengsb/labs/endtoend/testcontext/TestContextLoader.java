@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 import org.openengsb.labs.endtoend.distribution.Distribution;
 import org.openengsb.labs.endtoend.distribution.DistributionExtractor;
+import org.openengsb.labs.endtoend.util.Arch;
+import org.openengsb.labs.endtoend.util.OS;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -70,7 +72,7 @@ public class TestContextLoader {
             throw new InvalidContextFileFoundException(filename);
         }
 
-        return new TestContextID(m.group(1), m.group(2), m.group(3));
+        return new TestContextID(m.group(1), OS.fromString(m.group(2)), Arch.fromString(m.group(3)));
     }
 
     private Distribution createDistribution(TestContextID testContextID, File distributionFile) {
@@ -86,16 +88,16 @@ public class TestContextLoader {
     }
 
     public TestContext getTestContext(String contextName) {
-        String osName = System.getProperty("os.name").toLowerCase().replace(" ", "");
-        String osArch = System.getProperty("os.arch").toLowerCase();
+        OS osName = OS.current();
+        Arch osArch = Arch.current();
 
         TestContextID id = new TestContextID(contextName, osName, osArch);
         return testContexts.get(id);
     }
 
     public TestContext getDefaultTestContext() throws NoContextFileForSystemFoundException {
-        String osName = System.getProperty("os.name").toLowerCase().replace(" ", "");
-        String osArch = System.getProperty("os.arch").toLowerCase();
+        OS osName = OS.current();
+        Arch osArch = Arch.current();
 
         TestContextID testContextID = new TestContextID(osName, osArch);
 
