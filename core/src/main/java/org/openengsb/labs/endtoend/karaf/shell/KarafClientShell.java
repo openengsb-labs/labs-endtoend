@@ -45,6 +45,7 @@ public class KarafClientShell implements RemoteShell {
         new File(this.startCmd).setExecutable(true);
 
         ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd, "-a", port.toString(), "-h", host, "-u", user);
+        processBuilder.redirectError(new File("/Users/Dominik/test.txt"));
         try {
             this.process = new TimeoutableProcess(processBuilder.start());
         } catch (IOException e) {

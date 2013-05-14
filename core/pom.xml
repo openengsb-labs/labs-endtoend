@@ -50,5 +50,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.openengsb.framework</groupId>
+			<artifactId>openengsb-framework</artifactId>
+			<type>zip</type>
+		</dependency>
 	</dependencies>
 </project>

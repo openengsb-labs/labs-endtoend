@@ -29,6 +29,7 @@
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-notice-plugin.version>1.0.4</maven-notice-plugin.version>
 		<junit.version>4.11</junit.version>
+		<openengsb.version>3.0.0-SNAPSHOT</openengsb.version>
 	</properties>
 
 	<modules>
@@ -49,6 +50,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
+				<configuration> 
+					<source>1.7</source> 
+					<target>1.7</target> 
+				</configuration> 
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -164,6 +169,12 @@
 				<version>3.2.2.RELEASE</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.openengsb.framework</groupId>
+				<artifactId>openengsb-framework</artifactId>
+				<version>${openengsb.version}</version>
+				<type>zip</type>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 </project>
