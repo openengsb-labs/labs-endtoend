@@ -1,6 +1,6 @@
 package org.openengsb.labs.endtoend.testcontext;
 
-public class TestContextSetupException extends Exception {
+public class TestContextSetupException extends RuntimeException {
 
     private static final long serialVersionUID = -270885591013252606L;
 

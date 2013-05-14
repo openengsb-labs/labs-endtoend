@@ -36,23 +36,42 @@ public class TestContextLoader {
         this.distributionExtractor = distributionExtractor;
     }
 
-    public void loadContexts() throws FileNotFoundException, IOException, InvalidContextFileFound {
-        Set<File> endToEndFilesFromResources = getEndToEndFilesFromResources();
+    /**
+     * Load all available contexts.
+     * 
+     * @exception IllegalStateException If the contexts could not be loaded.
+     */
+    public void loadContexts() {
+        Set<File> endToEndFilesFromResources;
+        try {
+            endToEndFilesFromResources = getEndToEndFilesFromResources();
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not load contexts.", e);
+        }
         loadContexts(endToEndFilesFromResources);
     }
 
-    public void loadContexts(Set<File> configFiles) throws FileNotFoundException, IOException, InvalidContextFileFound {
-        for (File file : configFiles) {
+    /**
+     * Load only the given set of context files.
+     * 
+     * @param contextFiles The set of context file to be loaded.
+     * @exception IllegalArgumentException If one of the given files has an invalid name.
+     * 
+     */
+    public void loadContexts(Set<File> contextFiles) {
+        for (File file : contextFiles) {
             ContextConfiguration contextConfiguration;
             TestContextID testContextID;
 
             try {
-                contextConfiguration = ContextConfiguration.loadFromFile(file);
                 testContextID = parseContextID(file.getName());
+                contextConfiguration = ContextConfiguration.loadFromFile(file);
             } catch (InvalidConfiguration e) {
-                throw new InvalidContextFileFound(file.getName(), e);
+                throw new IllegalStateException("Invalid configuration in file: " + file.getName(), e);
             } catch (InvalidContextFileName e) {
-                throw new InvalidContextFileFound(file.getName(), e);
+                throw new IllegalArgumentException("Invalid context file name given: " + file.getName());
+            } catch (FileNotFoundException e) {
+                throw new IllegalStateException("No context file with given name found: " + file.getName(), e);
             }
 
             testContexts.put(testContextID, new TestContext(testContextID, this.distributionResolver,
@@ -80,15 +99,37 @@ public class TestContextLoader {
         return new TestContextID(m.group(1), OS.fromString(m.group(2)), Arch.fromString(m.group(3)));
     }
 
+    /**
+     * Returns the context with the given name. Contexts have to be loaded with {@link #loadContexts()} or
+     * {@link #loadContexts(Set)} beforehand.
+     * 
+     * @param contextName
+     * @return Context with the given name.
+     * @exception IllegalArgumentException If no context with the given name is available.
+     */
     public TestContext getTestContext(String contextName) {
         OS osName = OS.current();
         Arch osArch = Arch.current();
 
         TestContextID id = new TestContextID(contextName, osName, osArch);
-        return testContexts.get(id);
+        TestContext testContext = testContexts.get(id);
+        if (null == testContext) {
+            throw new IllegalArgumentException("No context with this name available: " + contextName);
+        }
+
+        return testContext;
     }
 
-    public TestContext getDefaultTestContext() throws NoContextFileForSystemFoundException {
+    /**
+     * Returns the default context for the current operating system and architecture. The corresponding file name has to
+     * be of the form endtoend.*os*.*arch*.properties. For possible values of *os* and *arch* see the classes {@link OS}
+     * and {@link Arch}. Contexts have to be loaded with {@link #loadContexts()} or {@link #loadContexts(Set)}
+     * beforehand.
+     * 
+     * @return Default context for the current operating system and architecture.
+     * @exception IllegalStateException If no context for the current operating system and architecture is available.
+     */
+    public TestContext getDefaultTestContext() {
         OS osName = OS.current();
         Arch osArch = Arch.current();
 
@@ -96,7 +137,8 @@ public class TestContextLoader {
 
         TestContext testContext = this.testContexts.get(testContextID);
         if (null == testContext) {
-            throw new NoContextFileForSystemFoundException(osName, osArch);
+            throw new IllegalStateException("No context for current operation system and architecture found: " + osName
+                    + ", " + osArch);
         }
 
         return testContext;

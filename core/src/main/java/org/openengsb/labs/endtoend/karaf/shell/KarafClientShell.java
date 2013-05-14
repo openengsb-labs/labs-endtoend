@@ -9,14 +9,15 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.openengsb.labs.endtoend.karaf.KarafException;
+import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
+import org.openengsb.labs.endtoend.util.TimeoutableProcess;
 
 public class KarafClientShell implements RemoteShell {
     private final String startCmd;
     private PrintWriter pw;
-    private Process process;
+    private TimeoutableProcess process;
     private OutputHandler outputHandler;
 
     public KarafClientShell(final String startCmd) {
@@ -24,14 +25,14 @@ public class KarafClientShell implements RemoteShell {
     }
 
     public void login(String applicationName, String host, Integer port, String user, String pass, Long timeout,
-            TimeUnit timeUnit) throws TimeoutException {
+            TimeUnit timeUnit) throws CommandTimeoutException {
         startClient(applicationName, host, port, user, pass);
 
         try {
             outputHandler.waitForPrompt(timeout, timeUnit);
         } catch (TimeoutException e) {
-            stopClient();
-            throw e;
+            killClient();
+            throw new CommandTimeoutException("login", e);
         }
     }
 
@@ -45,9 +46,9 @@ public class KarafClientShell implements RemoteShell {
 
         ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd, "-a", port.toString(), "-h", host, "-u", user);
         try {
-            this.process = processBuilder.start();
+            this.process = new TimeoutableProcess(processBuilder.start());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Could not start client.", e);
         }
 
         this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream())));
@@ -59,23 +60,45 @@ public class KarafClientShell implements RemoteShell {
                 new KarafPromptRecognizer(user, applicationName));
     }
 
-    private void stopClient() {
+    private void killClient() {
+        try {
+            stopClient(0L, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            // Expected.
+        }
+    }
+
+    private void stopClient(Long timeout, TimeUnit timeUnit) throws TimeoutException {
         this.pw.close();
         this.outputHandler.shutdown();
+        try {
+            this.process.waitFor(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            this.process.destroy();
+            throw e;
+        }
     }
 
     @Override
-    public void logout() throws KarafException {
+    public void logout(Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
         this.pw.println("logout");
         this.pw.flush();
-        stopClient();
+        try {
+            stopClient(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            throw new CommandTimeoutException("logout", e);
+        }
     }
 
     @Override
-    public String execute(String command, Long timeout, TimeUnit timeUnit) throws TimeoutException {
+    public String execute(String command, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
         this.pw.println(command);
         this.pw.flush();
-        return this.outputHandler.getOutput(timeout, timeUnit);
+        try {
+            return this.outputHandler.getOutput(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            throw new CommandTimeoutException(command, e);
+        }
     }
 
     @Override

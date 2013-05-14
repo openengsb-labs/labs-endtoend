@@ -1,7 +1,13 @@
 package org.openengsb.labs.endtoend.karaf.shell;
 
-import org.openengsb.labs.endtoend.karaf.KarafException;
+import java.util.concurrent.TimeUnit;
+
+import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 
 public interface RemoteShell extends Shell {
-    void logout() throws KarafException;
+    /**
+     * Logout and stop client.
+     */
+    void logout(Long timeout, TimeUnit timeUnit) throws CommandTimeoutException;
+
 }

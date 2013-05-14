@@ -2,7 +2,6 @@ package org.openengsb.labs.endtoend.distribution.resolver;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,8 +15,12 @@ public class DistributionResolver {
 
     private final AetherBasedResolver aetherBasedResolver;
 
-    public DistributionResolver() throws MalformedURLException, Exception {
-        this.aetherBasedResolver = new AetherBasedResolver(MavenConfigurationHelper.getUserConfig(new Properties()));
+    public DistributionResolver() {
+        try {
+            this.aetherBasedResolver = new AetherBasedResolver(MavenConfigurationHelper.getUserConfig(new Properties()));
+        } catch (Exception e) {
+            throw new IllegalStateException("AetherBasedResolver could not be instantiated.", e);
+        }
     }
 
     public ResolvedDistribution resolveDistribution(String distributionUrl) throws InvalidDistributionURI,

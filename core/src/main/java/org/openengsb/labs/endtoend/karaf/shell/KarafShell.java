@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
 
@@ -33,10 +34,14 @@ public class KarafShell implements Shell {
     }
 
     @Override
-    public String execute(String command, Long timeout, TimeUnit timeUnit) throws TimeoutException {
+    public String execute(String command, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
         this.pw.println(command);
         this.pw.flush();
-        return this.outputHandler.getOutput(timeout, timeUnit);
+        try {
+            return this.outputHandler.getOutput(timeout, timeUnit);
+        } catch (TimeoutException e) {
+            throw new CommandTimeoutException(command, e);
+        }
     }
 
     public void close() {

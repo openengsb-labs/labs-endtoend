@@ -25,9 +25,15 @@ public class TestContext {
         this.configuration = configuration;
     }
 
-    public void setup() throws TestContextSetupException {
-        if (null != this.distribution) {
-            throw new UnsupportedOperationException("Context already setup.");
+    /**
+     * Sets up the context. I.e. extracting the distribution, etc..
+     * 
+     * @exception IllegalStateException If context has already been set up.
+     * @exception TestContextTeardownException If the context could not be set up.
+     */
+    public void setup() {
+        if (isSetup()) {
+            throw new IllegalStateException("Context already setup.");
         }
 
         try {
@@ -39,19 +45,33 @@ public class TestContext {
             this.distribution = new Distribution(extractedDistribution, this.configuration.getKarafAppname(),
                     this.configuration.getKarafPort(), this.configuration.getKarafCmd(),
                     this.configuration.getKarafClientCmd());
-
         } catch (Exception e) {
             throw new TestContextSetupException(e);
         }
     }
 
+    /**
+     * Returns the distribution ready to be used.
+     * 
+     * @return The distribution
+     * @exception IllegalStateException If the context has not been set up yet.
+     */
     public Distribution getDistribution() {
+        if (!isSetup()) {
+            throw new IllegalStateException("Context not yet set up.");
+        }
         return this.distribution;
     }
 
-    public void teardown() throws TestContextTeardownException {
-        if (null == this.distribution) {
-            throw new UnsupportedOperationException("Context not yet setup.");
+    /**
+     * Thears down the context. I.e. deleting the distribution, etc..
+     * 
+     * @exception IllegalStateException If context has not been set up yet.
+     * @exception TestContextTeardownException If the context could not be teared down.
+     */
+    public void teardown() {
+        if (!isSetup()) {
+            throw new IllegalStateException("Context not yet set up.");
         }
 
         try {
@@ -88,5 +108,9 @@ public class TestContext {
         } else if (!getId().equals(other.getId()))
             return false;
         return true;
+    }
+
+    public boolean isSetup() {
+        return null != this.distribution;
     }
 }

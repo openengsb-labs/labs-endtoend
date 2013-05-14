@@ -3,8 +3,8 @@ package org.openengsb.labs.endtoend.distribution;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
+import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.Karaf;
 import org.openengsb.labs.endtoend.karaf.KarafService;
 
@@ -29,9 +29,10 @@ public class Distribution {
     public void delete() throws IOException {
         try {
             this.karaf.shutdown(DEFAULT_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            this.karaf.kill();
+        } catch (CommandTimeoutException e) {
+            // Karaf was forcefully killed.
         }
+
         this.extractedDistribution.delete();
     }
 }

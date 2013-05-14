@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ContextConfiguration {
@@ -57,12 +58,13 @@ public class ContextConfiguration {
         return new ContextConfiguration(distributionURI, karafAppname, karafPort, karafCmd, karafClientCmd);
     }
 
-    public static ContextConfiguration loadFromFile(File file) throws FileNotFoundException, IOException,
-            InvalidConfiguration {
+    public static ContextConfiguration loadFromFile(File file) throws FileNotFoundException, InvalidConfiguration {
         Properties properties = new Properties();
-        FileInputStream stream = new FileInputStream(file);
-        properties.load(stream);
-        stream.close();
+        try (InputStream stream = new FileInputStream(file)) {
+            properties.load(stream);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while reading configuration from context file.", e);
+        }
 
         return loadFromProperties(properties);
     }

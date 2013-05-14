@@ -1,19 +1,15 @@
 package org.openengsb.labs.endtoend;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.openengsb.labs.endtoend.distribution.extractor.DistributionExtractor;
 import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
+import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.Karaf;
-import org.openengsb.labs.endtoend.karaf.KarafException;
 import org.openengsb.labs.endtoend.karaf.shell.RemoteShell;
 import org.openengsb.labs.endtoend.karaf.shell.Shell;
 import org.openengsb.labs.endtoend.testcontext.TestContext;
-import org.openengsb.labs.endtoend.testcontext.TestContextSetupException;
-import org.openengsb.labs.endtoend.testcontext.TestContextTeardownException;
 import org.openengsb.labs.endtoend.testcontext.loader.TestContextLoader;
 
 public class App {
@@ -28,7 +24,7 @@ public class App {
         return new File(dir);
     }
 
-    private void exampleTest() throws MalformedURLException, Exception {
+    private void exampleTest() {
         DistributionResolver dr = new DistributionResolver();
         DistributionExtractor ds = new DistributionExtractor(new File(EXTRACTION_DIR));
 
@@ -45,16 +41,15 @@ public class App {
         runTestsWithContext(context);
     }
 
-    private void runTestsWithContext(TestContext context) throws KarafException, TestContextSetupException,
-            TestContextTeardownException {
+    private void runTestsWithContext(TestContext context) {
         context.setup();
 
         Karaf k = context.getDistribution().getKaraf();
         try {
             System.out.println("Starting Karaf...");
             k.start(10L, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            System.out.println("Timeout!");
+        } catch (CommandTimeoutException e) {
+            System.out.println(e.getMessage());
         }
 
         System.out.println("Executing list command (local shell)...");
@@ -63,28 +58,28 @@ public class App {
             String response = null;
             response = shell.execute("list", 10L, TimeUnit.SECONDS);
             System.out.println(response);
-        } catch (TimeoutException e2) {
-            System.out.println("Timeout!");
+        } catch (CommandTimeoutException e) {
+            System.out.println(e.getMessage());
         }
 
         RemoteShell remoteShell = null;
         try {
             System.out.println("Remote login...");
-            remoteShell = k.login("karaf", "", 20L, TimeUnit.SECONDS);
+            remoteShell = k.login("karaf", "", 10L, TimeUnit.SECONDS);
             System.out.println("Executing list command (remote shell)...");
             String response = remoteShell.execute("list", 10L, TimeUnit.SECONDS);
             System.out.println(response);
             System.out.println("Logout...");
-            remoteShell.logout();
-        } catch (TimeoutException e1) {
-            System.out.println("Timeout!");
+            remoteShell.logout(10L, TimeUnit.SECONDS);
+        } catch (CommandTimeoutException e) {
+            System.out.println(e.getMessage());
         }
 
         try {
             System.out.println("Stopping Karaf...");
             k.shutdown(10L, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            System.out.println("Timeout!");
+        } catch (CommandTimeoutException e) {
+            System.out.println(e.getMessage());
         }
 
         context.teardown();
