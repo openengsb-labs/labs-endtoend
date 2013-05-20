@@ -15,7 +15,7 @@ import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
 import org.openengsb.labs.endtoend.testcontext.TestContext;
 import org.openengsb.labs.endtoend.testcontext.TestContextID;
 import org.openengsb.labs.endtoend.testcontext.configuration.ContextConfiguration;
-import org.openengsb.labs.endtoend.testcontext.configuration.InvalidConfiguration;
+import org.openengsb.labs.endtoend.testcontext.configuration.InvalidConfigurationException;
 import org.openengsb.labs.endtoend.util.Arch;
 import org.openengsb.labs.endtoend.util.OS;
 import org.springframework.core.io.Resource;
@@ -66,7 +66,7 @@ public class TestContextLoader {
             try {
                 testContextID = parseContextID(file.getName());
                 contextConfiguration = ContextConfiguration.loadFromFile(file);
-            } catch (InvalidConfiguration e) {
+            } catch (InvalidConfigurationException e) {
                 throw new IllegalStateException("Invalid configuration in file: " + file.getName(), e);
             } catch (InvalidContextFileName e) {
                 throw new IllegalArgumentException("Invalid context file name given: " + file.getName());
@@ -81,7 +81,7 @@ public class TestContextLoader {
 
     private Set<File> getEndToEndFilesFromResources() throws IOException {
         PathMatchingResourcePatternResolver res = new PathMatchingResourcePatternResolver();
-        Resource[] resources = res.getResources(FILE_PREFIX + ".*.*." + FILE_ENDING);
+        Resource[] resources = res.getResources("classpath*:" + FILE_PREFIX + ".*.*." + FILE_ENDING);
         HashSet<File> files = new HashSet<File>();
         for (Resource r : resources) {
             files.add(r.getFile());

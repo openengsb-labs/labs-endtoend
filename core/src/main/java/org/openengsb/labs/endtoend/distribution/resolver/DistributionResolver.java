@@ -51,20 +51,47 @@ public class DistributionResolver {
         return new ResolvedDistribution(distributionFile);
     }
 
-    public String getArtifactVersion(final String groupId, final String artifactId) {
+    private String getArtifactVersion(final String groupId, final String artifactId) {
         final Properties dependencies = new Properties();
+        String version = null;
+
         try {
             dependencies.load(new FileInputStream(getFileFromClasspath("META-INF/maven/dependencies.properties")));
-            final String version = dependencies.getProperty(groupId + "/" + artifactId + "/version");
+            version = dependencies.getProperty(groupId + "/" + artifactId + "/version");
             if (version == null) {
                 throw new RuntimeException("Could not resolve version. Do you have a dependency for " + groupId + "/"
                         + artifactId + " in your maven project?");
             }
-            return version;
+        } catch (FileNotFoundException e1) {
+            try {
+                version = getDefaultArtifactVersion(groupId, artifactId, dependencies, version);
+            } catch (FileNotFoundException e2) {
+                throw new RuntimeException(
+                        "Neither depends-maven-plugin generated dependencies.properties file found, nor a default_dependencies.properties file.");
+            }
         } catch (IOException e) {
             throw new RuntimeException(
-                    "Could not resolve version. Did you configure depends-maven-plugin in your maven project? Or maybe you did not run the maven build and you are using an IDE?");
+                    "IO Error while reading depends-maven-plugin generated dependencies.properties file.");
         }
+
+        return version;
+    }
+
+    private String getDefaultArtifactVersion(final String groupId, final String artifactId,
+            final Properties dependencies, String version) throws FileNotFoundException {
+        try {
+            dependencies.load(new FileInputStream(getFileFromClasspath("default_dependencies.properties")));
+            version = dependencies.getProperty(groupId + "/" + artifactId + "/version");
+            if (version == null) {
+                throw new RuntimeException("Could not resolve version. Do you have a dependency for " + groupId + "/"
+                        + artifactId + " in your maven project?");
+            }
+        } catch (FileNotFoundException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new RuntimeException("IO Error while reading default_dependencies.properties file.");
+        }
+        return version;
     }
 
     private File getFileFromClasspath(final String filePath) throws FileNotFoundException {

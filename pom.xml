@@ -29,6 +29,7 @@
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-notice-plugin.version>1.0.4</maven-notice-plugin.version>
 		<junit.version>4.11</junit.version>
+		<powermock.version>1.5</powermock.version>
 		<openengsb.version>3.0.0-SNAPSHOT</openengsb.version>
 	</properties>
 
@@ -125,6 +126,20 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-junit4</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
 			</dependency>
 
 			<dependency>

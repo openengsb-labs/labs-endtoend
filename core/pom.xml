@@ -27,6 +27,16 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.felix.karaf</groupId>
 			<artifactId>org.apache.felix.karaf.client</artifactId>
 		</dependency>

@@ -15,24 +15,60 @@ import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
 import org.openengsb.labs.endtoend.util.TimeoutableProcess;
 
 public class KarafClientShell implements RemoteShell {
-    private final String startCmd;
+    private final File startCmd;
     private PrintWriter pw;
     private TimeoutableProcess process;
     private OutputHandler outputHandler;
 
-    public KarafClientShell(final String startCmd) {
+    boolean tryAgain = true; // Helper for login(...).
+
+    public KarafClientShell(final File startCmd) {
         this.startCmd = startCmd;
     }
 
-    public void login(String applicationName, String host, Integer port, String user, String pass, Long timeout,
-            TimeUnit timeUnit) throws CommandTimeoutException {
-        startClient(applicationName, host, port, user, pass);
+    public void login(final String applicationName, final String host, final Integer port, final String user,
+            final String pass, final Long timeout, final TimeUnit timeUnit) throws CommandTimeoutException {
 
-        try {
-            outputHandler.waitForPrompt(timeout, timeUnit);
-        } catch (TimeoutException e) {
-            killClient();
-            throw new CommandTimeoutException("login", e);
+        Long timeoutNanos = timeUnit.toNanos(timeout);
+
+        // Try to start client process. If karaf ssh port not yet ready, try again until success or timeout.
+        while (tryAgain) {
+            Long startNanoTime = System.nanoTime();
+
+            tryAgain = false;
+
+            KarafClientShell.this.startClient(applicationName, host, port, user, pass);
+
+            Thread workerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (0 != KarafClientShell.this.process.waitFor()) {
+                            // Try it again!
+                            tryAgain = true;
+                            KarafClientShell.this.killClient();
+                        }
+                    } catch (InterruptedException e) {
+                    }
+                }
+            });
+            workerThread.start();
+
+            try {
+                this.outputHandler.waitForPrompt(timeoutNanos, TimeUnit.NANOSECONDS);
+                if (!tryAgain) {
+                    // Client running and prompt found.
+                    workerThread.interrupt();
+                    return;
+                }
+
+                // Reduce timeout for next attempt.
+                timeoutNanos -= System.nanoTime() - startNanoTime;
+
+            } catch (TimeoutException e) {
+                killClient();
+                throw new CommandTimeoutException("login", e);
+            }
         }
     }
 
@@ -42,10 +78,9 @@ public class KarafClientShell implements RemoteShell {
     }
 
     private void startClient(String applicationName, String host, Integer port, String user, String pass) {
-        new File(this.startCmd).setExecutable(true);
-
-        ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd, "-a", port.toString(), "-h", host, "-u", user);
-        processBuilder.redirectError(new File("/Users/Dominik/test.txt"));
+        this.startCmd.setExecutable(true);
+        ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd.getAbsolutePath(), "-a", port.toString(),
+                "-h", host, "-u", user);
         try {
             this.process = new TimeoutableProcess(processBuilder.start());
         } catch (IOException e) {

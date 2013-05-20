@@ -1,10 +1,16 @@
 package org.openengsb.labs.endtoend.testcontext;
 
+import java.io.File;
+
 import org.openengsb.labs.endtoend.distribution.Distribution;
 import org.openengsb.labs.endtoend.distribution.ExtractedDistribution;
 import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
 import org.openengsb.labs.endtoend.distribution.extractor.DistributionExtractor;
 import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
+import org.openengsb.labs.endtoend.karaf.Karaf;
+import org.openengsb.labs.endtoend.karaf.KarafService;
+import org.openengsb.labs.endtoend.karaf.configuration.InvalidKarafConfigurationException;
+import org.openengsb.labs.endtoend.karaf.configuration.KarafConfiguration;
 import org.openengsb.labs.endtoend.testcontext.configuration.ContextConfiguration;
 
 public class TestContext {
@@ -42,12 +48,24 @@ public class TestContext {
 
             ExtractedDistribution extractedDistribution = this.extractor.getExtractedDistribution(this,
                     resolvedDistribution);
-            this.distribution = new Distribution(extractedDistribution, this.configuration.getKarafAppname(),
-                    this.configuration.getKarafPort(), this.configuration.getKarafCmd(),
-                    this.configuration.getKarafClientCmd());
+
+            Karaf karaf = createKarafService(extractedDistribution);
+            this.distribution = new Distribution(extractedDistribution, karaf);
         } catch (Exception e) {
             throw new TestContextSetupException(e);
         }
+    }
+
+    private Karaf createKarafService(ExtractedDistribution extractedDistribution) throws InvalidKarafConfigurationException {
+
+        File karafDir = new File(extractedDistribution.getDistributionDir(), this.configuration.getKarafRoot());
+
+        KarafConfiguration karafConfigurartion = KarafConfiguration.createKarafConfigurartion(karafDir,
+                this.configuration.getKarafAppname(), this.configuration.getKarafHost(),
+                this.configuration.getKarafPort(), this.configuration.getKarafCmd(),
+                this.configuration.getKarafClientCmd());
+
+        return new KarafService(karafConfigurartion);
     }
 
     /**

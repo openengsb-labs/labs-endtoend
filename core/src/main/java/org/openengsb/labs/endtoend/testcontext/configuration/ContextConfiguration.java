@@ -9,21 +9,27 @@ import java.util.Properties;
 
 public class ContextConfiguration {
     private static final String PROPERTY_DISTRIBUTION_URI = "distribution.uri";
+    private static final String PROPERTY_KARAF_ROOT = "karaf.root";
     private static final String PROPERTY_KARAF_APPNAME = "karaf.appname";
+    private static final String PROPERTY_KARAF_HOST = "karaf.host";
     private static final String PROPERTY_KARAF_PORT = "karaf.port";
     private static final String PROPERTY_KARAF_CMD = "karaf.cmd";
     private static final String PROPERTY_KARAF_CLIENT_CMD = "karaf.client.cmd";
 
     private final String distributionURI;
+    private final String karafRoot;
     private final String karafAppname;
+    private final String karafHost;
     private final Integer karafPort;
-    private final String karafCmd;
-    private final String karafClientCmd;
+    private final File karafCmd;
+    private final File karafClientCmd;
 
-    public ContextConfiguration(String distributionURI, String karafAppname, Integer karafPort, String karafCmd,
-            String karafClientCmd) throws InvalidConfiguration {
+    public ContextConfiguration(String distributionURI, String karafRoot, String karafAppname, String karafHost,
+            Integer karafPort, File karafCmd, File karafClientCmd) throws InvalidConfigurationException {
         this.distributionURI = distributionURI;
+        this.karafRoot = karafRoot;
         this.karafAppname = karafAppname;
+        this.karafHost = karafHost;
         this.karafPort = karafPort;
         this.karafCmd = karafCmd;
         this.karafClientCmd = karafClientCmd;
@@ -31,34 +37,42 @@ public class ContextConfiguration {
         checkConfiguration();
     }
 
-    private void checkConfiguration() throws InvalidConfiguration {
-        String[] mandatory = { this.distributionURI, this.karafAppname, this.karafCmd, this.karafClientCmd };
+    private void checkConfiguration() throws InvalidConfigurationException {
+        String[] mandatory = { this.distributionURI };
 
         for (String m : mandatory) {
             if (m.isEmpty()) {
-                throw new InvalidConfiguration("A mandatory property is missing.");
+                throw new InvalidConfigurationException("A mandatory property is missing.");
             }
         }
     }
 
-    public static ContextConfiguration loadFromProperties(Properties properties) throws InvalidConfiguration {
-        String karafAppname = properties.getProperty(PROPERTY_KARAF_APPNAME, "").trim();
-        String karafPortString = null;
-        Integer karafPort;
-        try {
-            karafPortString = properties.getProperty(PROPERTY_KARAF_PORT, "").trim();
-            karafPort = Integer.parseInt(karafPortString);
-        } catch (NumberFormatException e) {
-            throw new InvalidConfiguration("Invalid value for property " + PROPERTY_KARAF_PORT + ": " + karafPortString);
-        }
-        String karafCmd = properties.getProperty(PROPERTY_KARAF_CMD, "").trim();
-        String karafClientCmd = properties.getProperty(PROPERTY_KARAF_CLIENT_CMD, "").trim();
+    public static ContextConfiguration loadFromProperties(Properties properties) throws InvalidConfigurationException {
         String distributionURI = properties.getProperty(PROPERTY_DISTRIBUTION_URI, "").trim();
+        String karafRoot = properties.getProperty(PROPERTY_KARAF_ROOT, "").trim();
+        String karafAppname = properties.getProperty(PROPERTY_KARAF_APPNAME, "").trim();
+        String karafHost = properties.getProperty(PROPERTY_KARAF_HOST, "").trim();
 
-        return new ContextConfiguration(distributionURI, karafAppname, karafPort, karafCmd, karafClientCmd);
+        String karafPortString = null;
+        Integer karafPort = null;
+        karafPortString = properties.getProperty(PROPERTY_KARAF_PORT, "").trim();
+        if (!karafPortString.isEmpty()) {
+            try {
+                karafPort = Integer.parseInt(karafPortString);
+            } catch (NumberFormatException e) {
+                throw new InvalidConfigurationException("Invalid value for property " + PROPERTY_KARAF_PORT + ": "
+                        + karafPortString);
+            }
+        }
+
+        File karafCmd = new File(properties.getProperty(PROPERTY_KARAF_CMD, "").trim());
+        File karafClientCmd = new File(properties.getProperty(PROPERTY_KARAF_CLIENT_CMD, "").trim());
+
+        return new ContextConfiguration(distributionURI, karafRoot, karafAppname, karafHost, karafPort, karafCmd,
+                karafClientCmd);
     }
 
-    public static ContextConfiguration loadFromFile(File file) throws FileNotFoundException, InvalidConfiguration {
+    public static ContextConfiguration loadFromFile(File file) throws FileNotFoundException, InvalidConfigurationException {
         Properties properties = new Properties();
         try (InputStream stream = new FileInputStream(file)) {
             properties.load(stream);
@@ -73,19 +87,27 @@ public class ContextConfiguration {
         return distributionURI;
     }
 
+    public String getKarafRoot() {
+        return karafRoot;
+    }
+
     public String getKarafAppname() {
         return karafAppname;
+    }
+
+    public String getKarafHost() {
+        return karafHost;
     }
 
     public Integer getKarafPort() {
         return karafPort;
     }
 
-    public String getKarafCmd() {
+    public File getKarafCmd() {
         return karafCmd;
     }
 
-    public String getKarafClientCmd() {
+    public File getKarafClientCmd() {
         return karafClientCmd;
     }
 }
