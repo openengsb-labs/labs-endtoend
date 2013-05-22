@@ -67,7 +67,7 @@ public class App {
             System.out.println("Remote login...");
             remoteShell = k.login("karaf", "", 120L, TimeUnit.SECONDS);
             System.out.println("Executing list command (remote shell)...");
-            String response = remoteShell.execute("list", 10L, TimeUnit.SECONDS);
+            String response = remoteShell.execute("list", 30L, TimeUnit.SECONDS);
             System.out.println(response);
             System.out.println("Logout...");
             remoteShell.logout(10L, TimeUnit.SECONDS);
