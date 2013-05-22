@@ -3,7 +3,7 @@ Karaf End-To-End Testing Framework
 
 This library provides a simple and direct access to execute integration tests against any Apache Karaf based distribution.
 
-TODO: travis link
+[![Build Status](https://travis-ci.org/openengsb-labs/labs-endtoend.png?branch=master)](https://travis-ci.org/openengsb-labs/labs-endtoend)
 
 Quickstart
 -------------
