@@ -33,7 +33,7 @@ public class KarafService implements Karaf {
         this.karafShell = new KarafShell(this.karafProcess.getOutputStream(), this.karafProcess.getInputStream(),
                 this.karafConfiguration.getApplicationName());
         try {
-            this.karafShell.waitForPrompt(timeout, TimeUnit.SECONDS);
+            this.karafShell.waitForPrompt(timeout, timeUnit);
         } catch (TimeoutException e) {
             throw new CommandTimeoutException("", e);
         }

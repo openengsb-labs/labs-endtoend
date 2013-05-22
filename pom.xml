@@ -144,6 +144,18 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            </instructions>
+            <wrapImportPackage>false</wrapImportPackage>
+          </configuration>
+          <version>2.3.7</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 	</build>

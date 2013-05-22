@@ -47,7 +47,7 @@ public class App {
         Karaf k = context.getDistribution().getKaraf();
         try {
             System.out.println("Starting Karaf...");
-            k.start(10L, TimeUnit.SECONDS);
+            k.start(2L, TimeUnit.MINUTES);
         } catch (CommandTimeoutException e) {
             System.out.println(e.getMessage());
         }
@@ -56,7 +56,7 @@ public class App {
         Shell shell = k.getShell();
         try {
             String response = null;
-            response = shell.execute("list", 10L, TimeUnit.SECONDS);
+            response = shell.execute("list", 120L, TimeUnit.SECONDS);
             System.out.println(response);
         } catch (CommandTimeoutException e) {
             System.out.println(e.getMessage());
@@ -65,7 +65,7 @@ public class App {
         RemoteShell remoteShell = null;
         try {
             System.out.println("Remote login...");
-            remoteShell = k.login("karaf", "", 10L, TimeUnit.SECONDS);
+            remoteShell = k.login("karaf", "", 120L, TimeUnit.SECONDS);
             System.out.println("Executing list command (remote shell)...");
             String response = remoteShell.execute("list", 10L, TimeUnit.SECONDS);
             System.out.println(response);

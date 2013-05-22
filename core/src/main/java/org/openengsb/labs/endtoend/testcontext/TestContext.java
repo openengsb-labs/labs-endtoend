@@ -82,7 +82,7 @@ public class TestContext {
     }
 
     /**
-     * Thears down the context. I.e. deleting the distribution, etc..
+     * Tears down the context. I.e. deleting the distribution, etc..
      * 
      * @exception IllegalStateException If context has not been set up yet.
      * @exception TestContextTeardownException If the context could not be teared down.

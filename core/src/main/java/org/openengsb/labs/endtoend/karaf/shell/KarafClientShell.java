@@ -12,6 +12,7 @@ import java.util.concurrent.TimeoutException;
 import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
+import org.openengsb.labs.endtoend.util.OS;
 import org.openengsb.labs.endtoend.util.TimeoutableProcess;
 
 public class KarafClientShell implements RemoteShell {
@@ -81,6 +82,7 @@ public class KarafClientShell implements RemoteShell {
         this.startCmd.setExecutable(true);
         ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd.getAbsolutePath(), "-a", port.toString(),
                 "-h", host, "-u", user);
+
         try {
             this.process = new TimeoutableProcess(processBuilder.start());
         } catch (IOException e) {

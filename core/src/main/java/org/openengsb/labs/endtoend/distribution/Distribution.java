@@ -7,7 +7,7 @@ import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.Karaf;
 
 public class Distribution {
-    private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 20L;
+    private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 30L;
 
     private final ExtractedDistribution extractedDistribution;
 

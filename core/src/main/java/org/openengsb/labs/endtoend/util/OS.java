@@ -1,5 +1,7 @@
 package org.openengsb.labs.endtoend.util;
 
+import java.io.File;
+
 public enum OS {
 
     LINUX("linux"),
@@ -39,5 +41,21 @@ public enum OS {
     @Override
     public String toString() {
         return this.term;
+    }
+    
+    /**
+     * @return the user home directory
+     */
+    public static File getUserHome() {
+        return new File(System.getProperty("user.home"));
+    }
+    
+    /**
+     * 
+     * @param fileName the filename relative to the user home folder
+     * @return the file object
+     */
+    public static File getFileInUserHome(String fileName) {
+        return new File(System.getProperty("user.home"), fileName);
     }
 }
