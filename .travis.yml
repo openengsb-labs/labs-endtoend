@@ -1,0 +1,15 @@
+---
+language: java
+env:
+  global:
+  - SONATYPE_USERNAME=pieber
+  - secure: |-
+      2HhJJJdxL3KIujBo3DZNeHffmWSusDs4Ec/hX9gtt0F3H/zRmObMgxZK3NGZ
+      1Qjq9gNzloWm8j7rjRrB35V6s4r0tU5KeTJqrd7bwnm9yQrU6tWmB8sqtmzN
+      pXoyuwqfFT1lpmaMTnv9xrB3HnaTp0+AKuZLhdM0Ia+QQm1L49s=
+after_success:
+- wget https://raw.github.com/openengsb/openengsb-root/master/etc/travis/addServer.py
+- wget https://raw.github.com/openengsb/openengsb-root/master/etc/travis/deploy
+- python addServer.py
+- chmod -R 777 deploy
+- ./deploy
