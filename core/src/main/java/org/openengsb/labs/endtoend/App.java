@@ -14,6 +14,8 @@ import org.openengsb.labs.endtoend.testcontext.loader.TestContextLoader;
 
 public class App {
     private static final String EXTRACTION_DIR = getCurrentDir() + "/tmp";
+    private static final Long DEFAULT_TIMEOUT = 2L;
+    private static final TimeUnit MINUTES = TimeUnit.MINUTES;
 
     public static void main(String[] args) throws Exception {
         new App().exampleTest();
@@ -47,7 +49,7 @@ public class App {
         Karaf k = context.getDistribution().getKaraf();
         try {
             System.out.println("Starting Karaf...");
-            k.start(2L, TimeUnit.MINUTES);
+            k.start(DEFAULT_TIMEOUT, MINUTES);
         } catch (CommandTimeoutException e) {
             System.out.println(e.getMessage());
         }
@@ -56,7 +58,7 @@ public class App {
         Shell shell = k.getShell();
         try {
             String response = null;
-            response = shell.execute("list", 120L, TimeUnit.SECONDS);
+            response = shell.execute("list", DEFAULT_TIMEOUT, MINUTES);
             System.out.println(response);
         } catch (CommandTimeoutException e) {
             System.out.println(e.getMessage());
@@ -65,19 +67,19 @@ public class App {
         RemoteShell remoteShell = null;
         try {
             System.out.println("Remote login...");
-            remoteShell = k.login("karaf", "", 120L, TimeUnit.SECONDS);
+            remoteShell = k.login("karaf", "", DEFAULT_TIMEOUT, MINUTES);
             System.out.println("Executing list command (remote shell)...");
-            String response = remoteShell.execute("list", 30L, TimeUnit.SECONDS);
+            String response = remoteShell.execute("list", DEFAULT_TIMEOUT, MINUTES);
             System.out.println(response);
             System.out.println("Logout...");
-            remoteShell.logout(10L, TimeUnit.SECONDS);
+            remoteShell.logout(DEFAULT_TIMEOUT, MINUTES);
         } catch (CommandTimeoutException e) {
             System.out.println(e.getMessage());
         }
 
         try {
             System.out.println("Stopping Karaf...");
-            k.shutdown(10L, TimeUnit.SECONDS);
+            k.shutdown(DEFAULT_TIMEOUT, MINUTES);
         } catch (CommandTimeoutException e) {
             System.out.println(e.getMessage());
         }
