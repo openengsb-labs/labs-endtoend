@@ -64,6 +64,12 @@ public class App {
             System.out.println(e.getMessage());
         }
 
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         RemoteShell remoteShell = null;
         try {
             System.out.println("Remote login...");

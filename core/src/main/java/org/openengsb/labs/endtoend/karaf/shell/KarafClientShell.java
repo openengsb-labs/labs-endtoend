@@ -28,7 +28,7 @@ public class KarafClientShell implements RemoteShell {
     }
 
     public void login(final String applicationName, final String host, final Integer port, final String user,
-            final String pass, final Long timeout, final TimeUnit timeUnit) throws CommandTimeoutException {
+                      final String pass, final Long timeout, final TimeUnit timeUnit) throws CommandTimeoutException {
 
         Long timeoutNanos = timeUnit.toNanos(timeout);
 
@@ -82,6 +82,7 @@ public class KarafClientShell implements RemoteShell {
         this.startCmd.setExecutable(true);
         ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd.getAbsolutePath(), "-a", port.toString(),
                 "-h", host, "-u", user);
+        processBuilder.environment().put("KARAF_OPTS", "-Djline.terminal=off");
 
         try {
             this.process = new TimeoutableProcess(processBuilder.start());

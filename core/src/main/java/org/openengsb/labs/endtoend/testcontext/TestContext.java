@@ -1,12 +1,21 @@
 package org.openengsb.labs.endtoend.testcontext;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
 import org.openengsb.labs.endtoend.distribution.Distribution;
 import org.openengsb.labs.endtoend.distribution.ExtractedDistribution;
 import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
 import org.openengsb.labs.endtoend.distribution.extractor.DistributionExtractor;
 import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
+import org.openengsb.labs.endtoend.karaf.ConfigurationManipulator;
 import org.openengsb.labs.endtoend.karaf.Karaf;
 import org.openengsb.labs.endtoend.karaf.KarafService;
 import org.openengsb.labs.endtoend.karaf.configuration.InvalidKarafConfigurationException;
@@ -24,7 +33,7 @@ public class TestContext {
     private Distribution distribution;
 
     public TestContext(TestContextID id, DistributionResolver resolver, DistributionExtractor extractor,
-            ContextConfiguration configuration) {
+                       ContextConfiguration configuration) {
         this.id = id;
         this.resolver = resolver;
         this.extractor = extractor;
@@ -33,11 +42,11 @@ public class TestContext {
 
     /**
      * Sets up the context. I.e. extracting the distribution, etc..
-     * 
-     * @exception IllegalStateException If context has already been set up.
-     * @exception TestContextTeardownException If the context could not be set up.
+     *
+     * @throws IllegalStateException        If context has already been set up.
+     * @throws TestContextTeardownException If the context could not be set up.
      */
-    public void setup() {
+    public void setup(ConfigurationManipulator... configurations) {
         if (isSetup()) {
             throw new IllegalStateException("Context already setup.");
         }
@@ -48,6 +57,28 @@ public class TestContext {
 
             ExtractedDistribution extractedDistribution = this.extractor.getExtractedDistribution(this,
                     resolvedDistribution);
+
+            new ConfigurationManipulator() {
+                @Override
+                public void manipulate(File karafRootFolder) {
+                    File file = new File(new File(karafRootFolder, "etc"), "system.properties");
+                    Properties properties = new Properties();
+                    try {
+                        try (FileInputStream in = new FileInputStream(file)) {
+                            properties.load(in);
+                        }
+                        properties.setProperty("jline.terminal", "none");
+                        try (FileOutputStream out = new FileOutputStream(file)) {
+                            properties.store(out, null);
+                        }
+                    } catch (IOException e) {
+                        throw new IllegalStateException("Jline terminal couldnt be turned off.");
+                    }
+                }
+            }.manipulate(extractedDistribution.getDistributionDir());
+            for (ConfigurationManipulator configurationManipulator : configurations) {
+                configurationManipulator.manipulate(extractedDistribution.getDistributionDir());
+            }
 
             Karaf karaf = createKarafService(extractedDistribution);
             this.distribution = new Distribution(extractedDistribution, karaf);
@@ -70,9 +101,9 @@ public class TestContext {
 
     /**
      * Returns the distribution ready to be used.
-     * 
+     *
      * @return The distribution
-     * @exception IllegalStateException If the context has not been set up yet.
+     * @throws IllegalStateException If the context has not been set up yet.
      */
     public Distribution getDistribution() {
         if (!isSetup()) {
@@ -83,9 +114,9 @@ public class TestContext {
 
     /**
      * Tears down the context. I.e. deleting the distribution, etc..
-     * 
-     * @exception IllegalStateException If context has not been set up yet.
-     * @exception TestContextTeardownException If the context could not be teared down.
+     *
+     * @throws IllegalStateException        If context has not been set up yet.
+     * @throws TestContextTeardownException If the context could not be teared down.
      */
     public void teardown() {
         if (!isSetup()) {
