@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.openengsb.labs.endtoend.distribution.Distribution;
 import org.openengsb.labs.endtoend.distribution.ExtractedDistribution;
 import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
 import org.openengsb.labs.endtoend.distribution.extractor.DistributionExtractor;
 import org.openengsb.labs.endtoend.distribution.resolver.DistributionResolver;
+import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.ConfigurationManipulator;
 import org.openengsb.labs.endtoend.karaf.Karaf;
 import org.openengsb.labs.endtoend.karaf.KarafService;
@@ -23,6 +21,8 @@ import org.openengsb.labs.endtoend.karaf.configuration.KarafConfiguration;
 import org.openengsb.labs.endtoend.testcontext.configuration.ContextConfiguration;
 
 public class TestContext {
+    private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 30L;
+
     private final TestContextID id;
 
     private final DistributionExtractor extractor;
@@ -33,7 +33,7 @@ public class TestContext {
     private Distribution distribution;
 
     public TestContext(TestContextID id, DistributionResolver resolver, DistributionExtractor extractor,
-                       ContextConfiguration configuration) {
+            ContextConfiguration configuration) {
         this.id = id;
         this.resolver = resolver;
         this.extractor = extractor;
@@ -42,8 +42,8 @@ public class TestContext {
 
     /**
      * Sets up the context. I.e. extracting the distribution, etc..
-     *
-     * @throws IllegalStateException        If context has already been set up.
+     * 
+     * @throws IllegalStateException If context has already been set up.
      * @throws TestContextTeardownException If the context could not be set up.
      */
     public void setup(ConfigurationManipulator... configurations) {
@@ -87,7 +87,8 @@ public class TestContext {
         }
     }
 
-    private Karaf createKarafService(ExtractedDistribution extractedDistribution) throws InvalidKarafConfigurationException {
+    private Karaf createKarafService(ExtractedDistribution extractedDistribution)
+            throws InvalidKarafConfigurationException {
 
         File karafDir = new File(extractedDistribution.getDistributionDir(), this.configuration.getKarafRoot());
 
@@ -101,7 +102,7 @@ public class TestContext {
 
     /**
      * Returns the distribution ready to be used.
-     *
+     * 
      * @return The distribution
      * @throws IllegalStateException If the context has not been set up yet.
      */
@@ -114,8 +115,8 @@ public class TestContext {
 
     /**
      * Tears down the context. I.e. deleting the distribution, etc..
-     *
-     * @throws IllegalStateException        If context has not been set up yet.
+     * 
+     * @throws IllegalStateException If context has not been set up yet.
      * @throws TestContextTeardownException If the context could not be teared down.
      */
     public void teardown() {
@@ -124,7 +125,16 @@ public class TestContext {
         }
 
         try {
-            this.distribution.delete();
+            try {
+                Karaf karaf = this.distribution.getKaraf();
+                karaf.shutdown(DEFAULT_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            } catch (CommandTimeoutException e) {
+                // Karaf was forcefully killed.
+            }
+
+            ExtractedDistribution extractedDistribution = this.distribution.getExtractedDistribution();
+            this.extractor.deleteDistribution(extractedDistribution);
+            this.distribution = null;
         } catch (Exception e) {
             throw new TestContextTeardownException(e);
         }
