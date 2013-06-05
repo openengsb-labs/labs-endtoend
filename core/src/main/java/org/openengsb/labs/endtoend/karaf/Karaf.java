@@ -46,5 +46,36 @@ public interface Karaf {
      *         within timeout.
      */
     RemoteShell login(String username, String pass, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException;
-
+    
+    /**
+     * Install a karaf feature.
+     * 
+     * @param feature the feature to install
+     * @param timeout time to wait for prompt
+     * @param timeUnit unit for the timeout
+     * @throws CommandTimeoutException if the command didn't execute within timeout interval
+     */
+    void installFeature(String feature, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException;
+    
+    /**
+     * Checks if a feature is installed.
+     * 
+     * @param feature the feature to check
+     * @param timeout time to wait for prompt
+     * @param timeUnit unit for the timeout
+     * @return <code>true</code> if the feature is installed, <code>false</code> otherwise
+     * @throws CommandTimeoutException if the command didn't execute within timeout interval
+     */
+    boolean isFeatureInstalled(String feature, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException;
+    
+    /**
+     * Checks if a bundle is in active state.
+     * 
+     * @param bundleName the bundle name
+     * @param timeout time to wait for prompt
+     * @param timeUnit unit for the timeout
+     * @return <code>true</code> if the bundle is active, and <code>false</code> otherwise, or if bundle is not found.
+     * @throws CommandTimeoutException if the command didn't execute within timeout interval
+     */
+    boolean isBundleActive(String bundleName, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException;
 }

@@ -5,10 +5,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.openengsb.labs.endtoend.karaf.configuration.KarafConfiguration;
+import org.openengsb.labs.endtoend.karaf.output.BundleStateRecognizer;
 import org.openengsb.labs.endtoend.karaf.shell.KarafClientShell;
 import org.openengsb.labs.endtoend.karaf.shell.KarafShell;
 import org.openengsb.labs.endtoend.karaf.shell.RemoteShell;
 import org.openengsb.labs.endtoend.karaf.shell.Shell;
+import org.openengsb.labs.endtoend.recognizer.StringRecognizer;
 import org.openengsb.labs.endtoend.util.TimeoutableProcess;
 
 public class KarafService implements Karaf {
@@ -66,5 +68,20 @@ public class KarafService implements Karaf {
                 this.karafConfiguration.getSshPort(), username, pass, timeout, timeUnit);
 
         return shell;
+    }
+
+    @Override
+    public void installFeature(String feature, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
+        getShell().execute("feature:install " + feature, timeout, timeUnit);
+    }
+
+    @Override
+    public boolean isFeatureInstalled(String feature, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
+        return getShell().checkOutput("feature:list -i", new StringRecognizer(feature), timeout, timeUnit);
+    }
+
+    @Override
+    public boolean isBundleActive(String bundleName, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
+        return getShell().checkOutput("bundle:list", new BundleStateRecognizer(bundleName, "Active"), timeout, timeUnit);
     }
 }
