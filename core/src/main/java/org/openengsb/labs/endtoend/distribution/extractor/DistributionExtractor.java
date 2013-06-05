@@ -10,8 +10,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -25,9 +23,13 @@ import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
 import org.openengsb.labs.endtoend.testcontext.TestContext;
 import org.openengsb.labs.endtoend.util.BinaryKey;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 public class DistributionExtractor {
 
-    private final Map<BinaryKey<TestContext, ResolvedDistribution>, ExtractedDistribution> uncompressedDistributions = new HashMap<BinaryKey<TestContext, ResolvedDistribution>, ExtractedDistribution>();
+    private final BiMap<BinaryKey<TestContext, ResolvedDistribution>, ExtractedDistribution> uncompressedDistributions = HashBiMap
+            .create();
     private final File destinationRoot;
 
     public DistributionExtractor(File destinationRoot) {
@@ -60,6 +62,12 @@ public class DistributionExtractor {
         }
 
         return extractedDistribution;
+    }
+
+    public void deleteDistribution(ExtractedDistribution distribution) throws IOException {
+        File distributionDir = distribution.getDistributionDir();
+        this.uncompressedDistributions.inverse().remove(distribution);
+        FileUtils.deleteDirectory(distributionDir);
     }
 
     private void extractDistribution(URL sourceDistribution, File targetFolder) throws IOException {

@@ -1,14 +1,8 @@
 package org.openengsb.labs.endtoend.distribution;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.Karaf;
 
 public class Distribution {
-    private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 30L;
-
     private final ExtractedDistribution extractedDistribution;
 
     private final Karaf karaf;
@@ -22,13 +16,7 @@ public class Distribution {
         return this.karaf;
     }
 
-    public void delete() throws IOException {
-        try {
-            this.karaf.shutdown(DEFAULT_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        } catch (CommandTimeoutException e) {
-            // Karaf was forcefully killed.
-        }
-
-        this.extractedDistribution.delete();
+    public ExtractedDistribution getExtractedDistribution() {
+        return extractedDistribution;
     }
 }
