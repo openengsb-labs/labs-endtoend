@@ -40,7 +40,7 @@ class ResponseWorker implements Callable<String> {
                 }
 
                 if (this.promptRecognizer.recognize(out.toString())) {
-                    out.delete(out.length() - 1 - this.promptRecognizer.getPrompt().length(), out.length());
+                    out.delete(out.length() - this.promptRecognizer.getPrompt().length(), out.length());
                     return out.toString();
                 }
             }
