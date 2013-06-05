@@ -12,10 +12,10 @@ import java.util.concurrent.TimeoutException;
 import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
-import org.openengsb.labs.endtoend.util.OS;
+import org.openengsb.labs.endtoend.recognizer.Recognizer;
 import org.openengsb.labs.endtoend.util.TimeoutableProcess;
 
-public class KarafClientShell implements RemoteShell {
+public class KarafClientShell extends AbstractKarafShell implements RemoteShell {
     private final File startCmd;
     private PrintWriter pw;
     private TimeoutableProcess process;
@@ -73,11 +73,6 @@ public class KarafClientShell implements RemoteShell {
         }
     }
 
-    @Override
-    public void waitForPrompt(Long timeout, TimeUnit timeUnit) throws TimeoutException {
-        outputHandler.waitForPrompt(timeout, timeUnit);
-    }
-
     private void startClient(String applicationName, String host, Integer port, String user, String pass) {
         this.startCmd.setExecutable(true);
         ProcessBuilder processBuilder = new ProcessBuilder(this.startCmd.getAbsolutePath(), "-a", port.toString(),
@@ -130,19 +125,12 @@ public class KarafClientShell implements RemoteShell {
     }
 
     @Override
-    public String execute(String command, Long timeout, TimeUnit timeUnit) throws CommandTimeoutException {
-        this.pw.println(command);
-        this.pw.flush();
-        try {
-            return this.outputHandler.getOutput(timeout, timeUnit);
-        } catch (TimeoutException e) {
-            throw new CommandTimeoutException(command, e);
-        }
+    protected OutputHandler getOutputHandler() {
+        return outputHandler;
     }
-
+    
     @Override
-    public void execute(String command) {
-        this.pw.println(command);
-        this.pw.flush();
+    protected PrintWriter getPrintWriter() {
+        return pw;
     }
 }
