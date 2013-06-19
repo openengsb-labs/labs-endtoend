@@ -1,12 +1,5 @@
 package org.openengsb.labs.endtoend.testcontext;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
 import org.openengsb.labs.endtoend.distribution.Distribution;
 import org.openengsb.labs.endtoend.distribution.ExtractedDistribution;
 import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
@@ -20,10 +13,17 @@ import org.openengsb.labs.endtoend.karaf.configuration.InvalidKarafConfiguration
 import org.openengsb.labs.endtoend.karaf.configuration.KarafConfiguration;
 import org.openengsb.labs.endtoend.testcontext.configuration.ContextConfiguration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
 public class TestContext {
     private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 30L;
 
-    private final TestContextID id;
+    private String id;
 
     private final DistributionExtractor extractor;
     private final DistributionResolver resolver;
@@ -32,18 +32,21 @@ public class TestContext {
 
     private Distribution distribution;
 
-    public TestContext(TestContextID id, DistributionResolver resolver, DistributionExtractor extractor,
-            ContextConfiguration configuration) {
+    public TestContext(String id, DistributionResolver resolver, DistributionExtractor extractor, ContextConfiguration configuration) {
         this.id = id;
         this.resolver = resolver;
         this.extractor = extractor;
         this.configuration = configuration;
     }
 
+    public String getId() {
+        return id;
+    }
+
     /**
      * Sets up the context. I.e. extracting the distribution, etc..
-     * 
-     * @throws IllegalStateException If context has already been set up.
+     *
+     * @throws IllegalStateException        If context has already been set up.
      * @throws TestContextTeardownException If the context could not be set up.
      */
     public void setup(ConfigurationManipulator... configurations) {
@@ -102,7 +105,7 @@ public class TestContext {
 
     /**
      * Returns the distribution ready to be used.
-     * 
+     *
      * @return The distribution
      * @throws IllegalStateException If the context has not been set up yet.
      */
@@ -115,8 +118,8 @@ public class TestContext {
 
     /**
      * Tears down the context. I.e. deleting the distribution, etc..
-     * 
-     * @throws IllegalStateException If context has not been set up yet.
+     *
+     * @throws IllegalStateException        If context has not been set up yet.
      * @throws TestContextTeardownException If the context could not be teared down.
      */
     public void teardown() {
@@ -138,35 +141,6 @@ public class TestContext {
         } catch (Exception e) {
             throw new TestContextTeardownException(e);
         }
-    }
-
-    public TestContextID getId() {
-        return id;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        TestContext other = (TestContext) obj;
-        if (getId() == null) {
-            if (other.getId() != null)
-                return false;
-        } else if (!getId().equals(other.getId()))
-            return false;
-        return true;
     }
 
     public boolean isSetup() {
