@@ -1,16 +1,7 @@
 package org.openengsb.labs.endtoend.distribution.extractor;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -23,8 +14,9 @@ import org.openengsb.labs.endtoend.distribution.ResolvedDistribution;
 import org.openengsb.labs.endtoend.testcontext.TestContext;
 import org.openengsb.labs.endtoend.util.BinaryKey;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class DistributionExtractor {
 
@@ -70,7 +62,7 @@ public class DistributionExtractor {
         FileUtils.deleteDirectory(distributionDir);
     }
 
-    private void extractDistribution(URL sourceDistribution, File targetFolder) throws IOException {
+    private void extractDistribution(URL sourceDistribution, File targetFolder) throws IOException, UnsupportedArchiveTypeException {
         if (sourceDistribution.getProtocol().equals("file")) {
             if (sourceDistribution.getFile().indexOf(".zip") > 0) {
                 extractZipDistribution(sourceDistribution, targetFolder);
@@ -87,7 +79,7 @@ public class DistributionExtractor {
         } else if (sourceDistribution.toExternalForm().indexOf("/tar.gz") > 0) {
             extractTarGzDistribution(sourceDistribution, targetFolder);
         } else {
-            throw new IllegalStateException("Unknow packaging of distribution; only zip or tar.gz could be handled.");
+            throw new UnsupportedArchiveTypeException("Unknow packaging of distribution; only zip or tar.gz could be handled.");
         }
     }
 
