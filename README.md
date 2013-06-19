@@ -69,5 +69,5 @@ The full documentation is located at the github [wiki](https://github.com/openen
 
 Build
 -------------
-While all final releases are available via maven central you can also build latest snapshots locally by using "mvn install".
+While all final releases are available via maven central you can also build latest snapshots locally by using "mvn install" with Apache Maven 3.x and Java 7.x.
 
