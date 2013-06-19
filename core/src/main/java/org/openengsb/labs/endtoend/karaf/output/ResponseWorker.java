@@ -26,7 +26,7 @@ class ResponseWorker implements Callable<String> {
     public String call() {
         CharBuffer buf = CharBuffer.allocate(DEFAULT_BUFFER_SIZE);
         try {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 while (!this.in.ready()) {
                     try {
                         Thread.sleep(50);
@@ -41,12 +41,14 @@ class ResponseWorker implements Callable<String> {
 
                 if (this.promptRecognizer.recognize(out.toString())) {
                     out.delete(out.length() - this.promptRecognizer.getPrompt().length(), out.length());
-                    return out.toString();
+                    break;
                 }
             }
         } catch (IOException e) {
             // Stream closed.
             return out.toString();
         }
+
+        return out.toString();
     }
 }

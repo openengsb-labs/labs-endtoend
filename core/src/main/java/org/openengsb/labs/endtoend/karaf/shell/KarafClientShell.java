@@ -12,7 +12,6 @@ import java.util.concurrent.TimeoutException;
 import org.openengsb.labs.endtoend.karaf.CommandTimeoutException;
 import org.openengsb.labs.endtoend.karaf.output.KarafPromptRecognizer;
 import org.openengsb.labs.endtoend.karaf.output.OutputHandler;
-import org.openengsb.labs.endtoend.recognizer.Recognizer;
 import org.openengsb.labs.endtoend.util.TimeoutableProcess;
 
 public class KarafClientShell extends AbstractKarafShell implements RemoteShell {
@@ -28,7 +27,7 @@ public class KarafClientShell extends AbstractKarafShell implements RemoteShell 
     }
 
     public void login(final String applicationName, final String host, final Integer port, final String user,
-                      final String pass, final Long timeout, final TimeUnit timeUnit) throws CommandTimeoutException {
+            final String pass, final Long timeout, final TimeUnit timeUnit) throws CommandTimeoutException {
 
         Long timeoutNanos = timeUnit.toNanos(timeout);
 
@@ -44,11 +43,11 @@ public class KarafClientShell extends AbstractKarafShell implements RemoteShell 
                 @Override
                 public void run() {
                     try {
-                        if (0 != KarafClientShell.this.process.waitFor()) {
-                            // Try it again!
-                            tryAgain = true;
-                            KarafClientShell.this.killClient();
-                        }
+                        KarafClientShell.this.process.waitFor();
+                        Thread.sleep(50);
+                        // Try it again!
+                        tryAgain = true;
+                        KarafClientShell.this.killClient();
                     } catch (InterruptedException e) {
                     }
                 }
@@ -128,7 +127,7 @@ public class KarafClientShell extends AbstractKarafShell implements RemoteShell 
     protected OutputHandler getOutputHandler() {
         return outputHandler;
     }
-    
+
     @Override
     protected PrintWriter getPrintWriter() {
         return pw;
