@@ -17,7 +17,7 @@ import org.openengsb.labs.endtoend.testcontext.loader.TestContextLoader;
 public class ExecuteListCommandTest {
     private static final String LIST_COMMAND = "list";
     private static final String EXTRACTION_DIR = System.getProperty("java.io.tmpdir");
-    private static final Long DEFAULT_TIMEOUT = 2L;
+    private static final Long DEFAULT_TIMEOUT = 5L;
     private static final TimeUnit MINUTES = TimeUnit.MINUTES;
 
     private static TestContextLoader testContextLoader;
