@@ -13,7 +13,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>1.0.0-SNAPSHOT</name>
+    <name>labs-endtoend-parent</name>
     <url>http://maven.apache.org</url>
 
     <scm>
