@@ -15,7 +15,7 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<openengsb.version>3.0.0.M1</openengsb.version>        
     </properties>
 
     <build>
@@ -73,6 +73,7 @@
         <dependency>
             <groupId>org.openengsb.framework</groupId>
             <artifactId>openengsb-framework</artifactId>
+            <version>${openengsb.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>

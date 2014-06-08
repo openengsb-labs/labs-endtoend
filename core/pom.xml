@@ -78,21 +78,6 @@
 			<artifactId>spring-core</artifactId>
 		</dependency>
 		
-		<dependency>
-			<groupId>org.openengsb.framework</groupId>
-			<artifactId>openengsb-framework</artifactId>
-			<type>zip</type>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.karaf</groupId>
-                <artifactId>org.apache.karaf.client</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.ops4j.pax.logging</groupId>
-                <artifactId>pax-logging-api</artifactId>
-              </exclusion>
-            </exclusions>
-		</dependency>
 	</dependencies>
   
     <build>
