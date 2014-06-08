@@ -1,5 +1,7 @@
 package org.openengsb.labs.endtoend.util;
 
+import java.util.Objects;
+
 public class BinaryKey<Key1, Key2> {
     private final Key1 key1;
     private final Key2 key2;
@@ -11,32 +13,14 @@ public class BinaryKey<Key1, Key2> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((key1 == null) ? 0 : key1.hashCode());
-        result = prime * result + ((key2 == null) ? 0 : key2.hashCode());
-        return result;
+    	return Objects.hash(key1, key2);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BinaryKey other = (BinaryKey) obj;
-        if (key1 == null) {
-            if (other.key1 != null)
-                return false;
-        } else if (!key1.equals(other.key1))
-            return false;
-        if (key2 == null) {
-            if (other.key2 != null)
-                return false;
-        } else if (!key2.equals(other.key2))
-            return false;
-        return true;
+    	if (obj instanceof BinaryKey) {
+    		return Objects.equals(key1, ((BinaryKey<?, ?>) obj).key1) && Objects.equals(key2, ((BinaryKey<?, ?>) obj).key2);
+    	}
+    	return false;
     }
 }

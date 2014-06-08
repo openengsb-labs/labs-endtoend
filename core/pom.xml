@@ -8,9 +8,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.openengsb.labs.endtoend</groupId>
 	<artifactId>labs-endtoend-core</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<name>labs-endtoend-core</name>
