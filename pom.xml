@@ -24,6 +24,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gpg.useagent>true</gpg.useagent>
+        
         <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
         <maven-release-plugin.version>2.5</maven-release-plugin.version>
         <maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
@@ -65,7 +67,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
                     <pushChanges>false</pushChanges>
-                    <arguments>-Psonatype-oss-release -DpushChanges=false -Dgpg.useagent=true</arguments>
+                    <arguments>-Psonatype-oss-release -DpushChanges=false -Dgpg.useagent=${gpg.useagent}</arguments>
                     <preparationGoals>clean install -Dmaven.test.skip=true</preparationGoals>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
