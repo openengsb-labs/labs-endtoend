@@ -19,50 +19,15 @@ This project includes:
   Aether :: Implementation under Eclipse Public License, Version 1.0
   Aether :: SPI under Eclipse Public License, Version 1.0
   Aether :: Utilities under Eclipse Public License, Version 1.0
-  Apache Aries Blueprint API under The Apache Software License, Version 2.0
   Apache Aries Blueprint Bundle under The Apache Software License, Version 2.0
-  Apache Aries Blueprint CM under The Apache Software License, Version 2.0
-  Apache Aries Blueprint Core under The Apache Software License, Version 2.0
-  Apache Aries Blueprint Core Compatiblity Fragment Bundle under The Apache Software License, Version 2.0
-  Apache Aries Proxy API under The Apache Software License, Version 2.0
-  Apache Aries Proxy Service under The Apache Software License, Version 2.0
-  Apache Aries Quiesce API under The Apache Software License, Version 2.0
   Apache Aries Util under The Apache Software License, Version 2.0
-  Apache Felix Configuration Admin Service under The Apache Software License, Version 2.0
-  Apache Felix File Install under The Apache Software License, Version 2.0
-  Apache Felix Framework under The Apache Software License, Version 2.0
   Apache Felix Gogo Shell Commands under The Apache Software License, Version 2.0
   Apache Felix Gogo Shell Runtime under The Apache Software License, Version 2.0
   Apache Felix Karaf :: Client under The Apache Software License, Version 2.0
   Apache Felix Karaf :: Shell Console under The Apache Software License, Version 2.0
-  Apache Karaf :: Assemblies :: Default Distribution under The Apache Software License, Version 2.0
-  Apache Karaf :: Assemblies :: Features :: Enterprise under The Apache Software License, Version 2.0
-  Apache Karaf :: Assemblies :: Features :: Framework under The Apache Software License, Version 2.0
-  Apache Karaf :: Assemblies :: Features :: Spring under The Apache Software License, Version 2.0
-  Apache Karaf :: Assemblies :: Features :: Standard under The Apache Software License, Version 2.0
-  Apache Karaf :: Bundle :: Commands under The Apache Software License, Version 2.0
-  Apache Karaf :: Bundle :: Core under The Apache Software License, Version 2.0
-  Apache Karaf :: Exception under The Apache Software License, Version 2.0
-  Apache Karaf :: Features :: Command under The Apache Software License, Version 2.0
-  Apache Karaf :: Features :: Core under The Apache Software License, Version 2.0
-  Apache Karaf :: JAAS :: Boot under The Apache Software License, Version 2.0
-  Apache Karaf :: JAAS :: Config under The Apache Software License, Version 2.0
-  Apache Karaf :: JAAS :: Modules under The Apache Software License, Version 2.0
-  Apache Karaf :: Main under The Apache Software License, Version 2.0
-  Apache Karaf :: Region :: Core under The Apache Software License, Version 2.0
-  Apache Karaf :: Shell :: Console under The Apache Software License, Version 2.0
-  Apache Karaf :: Shell :: Help System under The Apache Software License, Version 2.0
-  Apache Karaf :: Shell :: Table under The Apache Software License, Version 2.0
-  Apache Karaf :: Shell :: Various Commands under The Apache Software License, Version 2.0
-  Apache Karaf :: System :: Core under The Apache Software License, Version 2.0
-  Apache Karaf :: System :: Shell Commands under The Apache Software License, Version 2.0
   Apache MINA Core under Apache 2.0 License
   Apache Mina SSHD :: Core under Apache 2.0 License
-  Apache ServiceMix :: Bundles :: junit under The Apache Software License, Version 2.0
-  Apache Shiro :: Support :: Karaf Features under The Apache Software License, Version 2.0
   Apache XBean :: Reflect under The Apache Software License, Version 2.0
-  ASM All under BSD
-  bnd - Bundle Tool under Apache Software License 2.0
   Codec under Apache License, Version 2.0
   Commons Compress under The Apache Software License, Version 2.0
   Commons IO under The Apache Software License, Version 2.0
@@ -73,12 +38,9 @@ This project includes:
   Hamcrest Core under New BSD License
   HttpClient under Apache License
   Javassist under MPL 1.1 or LGPL 2.1 or Apache License 2.0
-  JLEdit :: Core under The Apache Software License, Version 2.0
   jline:jline under BSD
   JUnit under Common Public License Version 1.0
   labs-endtoend-core under The Apache Software License, Version 2.0
-  labs-endtoend-itests under The Apache Software License, Version 2.0
-  labs-endtoend-parent under The Apache Software License, Version 2.0
   Maven Aether Provider under The Apache Software License, Version 2.0
   Maven Model under The Apache Software License, Version 2.0
   Maven Model Builder under The Apache Software License, Version 2.0
@@ -89,22 +51,14 @@ This project includes:
   Maven Wagon Lightweight HTTP Provider under The Apache Software License, Version 2.0
   Mockito under The MIT License
   Objenesis under Apache 2
-  OpenEngSB :: Framework :: Assembly under Apache 2
   OPS4J Base - Lang under ALv2
-  OPS4J Base - Monitors under ALv2
-  OPS4J Base - Net under ALv2
   OPS4J Base - Util - Collections under ALv2
   OPS4J Base - Util - Property under ALv2
   OPS4J Base - Util - XML under ALv2
-  OPS4J Pax Logging - Service under ALv2
-  OPS4J Pax Swissbox :: Bnd Utils under ALv2
   OPS4J Pax Swissbox :: Property under ALv2
   OPS4J Pax Url - aether: under ALv2
   OPS4J Pax Url - Commons under ALv2
   OPS4J Pax Url - Maven Commons under ALv2
-  OPS4J Pax Url - wrap: under ALv2
-  OPS4J Pax Wicket :: Karaf Feature File under ALv2
-  org.eclipse:osgi under Apache License, Version 2.0
   org.fusesource.jansi:jansi under Apache License, Version 2.0
   Plexus :: Component Annotations under The Apache Software License, Version 2.0
   Plexus :: Default Container under The Apache Software License, Version 2.0
