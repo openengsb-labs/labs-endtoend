@@ -20,6 +20,7 @@
         <connection>scm:git:git://github.com/openengsb-labs/labs-endtoend.git</connection>
         <developerConnection>scm:git:git@github.com:openengsb-labs/labs-endtoend.git</developerConnection>
         <url>http://github.com/openengsb-labs/labs-endtoend</url>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -67,8 +68,9 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
                     <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
                     <arguments>-Psonatype-oss-release -DpushChanges=false -Dgpg.useagent=${gpg.useagent}</arguments>
-                    <preparationGoals>clean install -Dmaven.test.skip=true</preparationGoals>
+                    <preparationGoals>clean install -DskipTests</preparationGoals>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
